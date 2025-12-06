@@ -138,12 +138,25 @@ async function TestimonialsContent({
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
+                {/* Título - Siempre visible */}
                 <th className="text-left p-4 font-semibold">Título</th>
-                <th className="text-left p-4 font-semibold">Autor</th>
-                <th className="text-left p-4 font-semibold">Categoría</th>
-                <th className="text-left p-4 font-semibold">Rating</th>
+
+                {/* Autor - Oculto en móvil, visible desde md (768px+) */}
+                <th className="hidden md:table-cell text-left p-4 font-semibold">Autor</th>
+
+                {/* Categoría - Oculto hasta lg (1024px+) */}
+                <th className="hidden lg:table-cell text-left p-4 font-semibold">Categoría</th>
+
+                {/* Rating - Oculto en móvil, visible desde md */}
+                <th className="hidden md:table-cell text-left p-4 font-semibold">Rating</th>
+
+                {/* Estado - Siempre visible */}
                 <th className="text-left p-4 font-semibold">Estado</th>
-                <th className="text-left p-4 font-semibold">Fecha</th>
+
+                {/* Fecha - Oculto hasta lg */}
+                <th className="hidden lg:table-cell text-left p-4 font-semibold">Fecha</th>
+
+                {/* Acciones - Siempre visible */}
                 <th className="text-left p-4 font-semibold">Acciones</th>
               </tr>
             </thead>
@@ -156,15 +169,24 @@ async function TestimonialsContent({
                     className={`border-b last:border-0 transition-colors hover:bg-muted/30 ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'
                       }`}
                   >
+                    {/* Título - Siempre visible */}
                     <td className="p-4">
                       <div>
                         <div className="font-medium text-xs">{testimonial.title}</div>
                         <div className="text-xs text-muted-foreground line-clamp-1">
                           {testimonial.content}
                         </div>
+                        {/* Info adicional visible solo en móvil */}
+                        <div className="md:hidden mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+                          <span className="text-yellow-500">★ {testimonial.stars_rating || 5}</span>
+                          <span>•</span>
+                          <span>{testimonial.client_name}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="p-4 mx-2">
+
+                    {/* Autor - Oculto en móvil */}
+                    <td className="hidden md:table-cell p-4 mx-2">
                       <div className="flex items-center gap-3">
                         <UserAvatar name={testimonial.client_name} size="xs" />
                         <div>
@@ -177,10 +199,14 @@ async function TestimonialsContent({
                         </div>
                       </div>
                     </td>
-                    <td className="p-4">
+
+                    {/* Categoría - Oculto hasta lg */}
+                    <td className="hidden lg:table-cell p-4">
                       <span className="text-xs">{testimonial.category_name || 'Sin categoría'}</span>
                     </td>
-                    <td className="p-4">
+
+                    {/* Rating - Oculto en móvil */}
+                    <td className="hidden md:table-cell p-4">
                       <div className="flex items-center gap-1">
                         <span className="text-yellow-500">★</span>
                         <span className="text-xs font-medium">
@@ -188,6 +214,8 @@ async function TestimonialsContent({
                         </span>
                       </div>
                     </td>
+
+                    {/* Estado - Siempre visible */}
                     <td className="p-4">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium ${getStatusBadgeColor(
@@ -195,10 +223,12 @@ async function TestimonialsContent({
                         )}`}
                       >
                         <StatusIcon className="w-3.5 h-3.5" />
-                        {getStatusText(testimonial.status)}
+                        <span className="hidden sm:inline">{getStatusText(testimonial.status)}</span>
                       </span>
                     </td>
-                    <td className="p-4">
+
+                    {/* Fecha - Oculto hasta lg */}
+                    <td className="hidden lg:table-cell p-4">
                       <span className="text-xs text-muted-foreground">
                         {testimonial.createdAt
                           ? new Date(testimonial.createdAt).toLocaleDateString('es-ES', {
@@ -209,8 +239,10 @@ async function TestimonialsContent({
                           : 'N/A'}
                       </span>
                     </td>
+
+                    {/* Acciones - Siempre visible */}
                     <td className="p-4">
-                      <TestimonialActions testimonial={testimonial} userRole={userRole} />
+                      <TestimonialActions testimonial={testimonial} />
                     </td>
                   </tr>
                 )

@@ -254,10 +254,10 @@ export function TestimonialPreviewDialog({
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <div className="flex items-center justify-between">
-                            <DialogTitle>Vista Previa del Testimonio</DialogTitle>
-                            <Badge className={getStatusColor(testimonial.status)}>
+                    <DialogHeader className="space-y-3">
+                        <div className="flex items-start justify-between gap-4 pr-6">
+                            <DialogTitle className="text-lg sm:text-xl">Vista Previa del Testimonio</DialogTitle>
+                            <Badge className={`${getStatusColor(testimonial.status)} shrink-0`}>
                                 {getStatusText(testimonial.status)}
                             </Badge>
                         </div>

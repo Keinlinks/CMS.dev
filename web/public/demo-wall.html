@@ -1,256 +1,215 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo - Muro de Testimonios</title>
+    <title>Demo - Muro de Testimonios Embebido</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            margin: 0;
-            padding: 40px 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
-        h1 {
+
+        .header {
             text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 40px;
-        }
-        .demo-section {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .demo-section h2 {
-            margin-top: 0;
-            color: #333;
-            border-bottom: 2px solid #3b82f6;
-            padding-bottom: 10px;
-        }
-        .embed-container {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            background: #fafafa;
-            margin-top: 20px;
-        }
-        iframe {
-            border: none;
-            width: 100%;
-            min-height: 600px;
-            border-radius: 8px;
-            background: white;
-        }
-        .code-block {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            margin-top: 15px;
-        }
-        .options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .option {
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 6px;
-            border-left: 3px solid #3b82f6;
-        }
-        .option strong {
-            display: block;
-            color: #1e293b;
-            margin-bottom: 5px;
-        }
-        .option span {
-            color: #64748b;
-            font-size: 14px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #3b82f6;
             color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            margin: 5px;
-            transition: background 0.2s;
+            margin-bottom: 3rem;
         }
-        .btn:hover {
-            background: #2563eb;
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .demo-card h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .demo-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-text {
+            color: #856404;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            opacity: 0.8;
+        }
+
+        /* Estilos para el contenedor del muro */
+        #testimonials-wall {
+            margin-top: 1.5rem;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>🎉 Demo - Muro de Testimonios</h1>
-        <p class="subtitle">Ejemplos de integración con diferentes configuraciones</p>
+        <!-- Header -->
+        <div class="header">
+            <h1>� Demo: Muro de Testimonios</h1>
+            <p>Ejemplo de cómo se ve el muro embebido en una página externa</p>
+        </div>
 
-        <!-- Demo 1: Light Theme, Base Card -->
-        <div class="demo-section">
-            <h2>1. Tema Claro - Card Base</h2>
-            <div class="options">
-                <div class="option">
-                    <strong>Theme:</strong>
-                    <span>light</span>
-                </div>
-                <div class="option">
-                    <strong>Card Layout:</strong>
-                    <span>base</span>
-                </div>
-                <div class="option">
-                    <strong>Font Size:</strong>
-                    <span>medium</span>
+        <!-- Instrucciones -->
+        <div class="demo-card">
+            <h2>📋 Instrucciones</h2>
+            <p>Este es un ejemplo de cómo se vería el muro de testimonios embebido en tu sitio web.</p>
+
+            <div class="alert">
+                <div class="alert-title">⚠️ Importante</div>
+                <div class="alert-text">
+                    Reemplaza <code>df4c7ca5-5107-4a13-a614-68664007bf57</code> con el ID de tu organización.
+                    Puedes obtener el código personalizado desde el dashboard en <code>/dashboard/embed</code>
                 </div>
             </div>
-            <div class="embed-container">
-                <iframe src="http://localhost:3000/embed/wall/org-123?theme=light&card=base&fontSize=medium"></iframe>
-            </div>
+
+            <p><strong>Parámetros disponibles:</strong></p>
+            <ul style="margin-left: 1.5rem; color: #666; line-height: 1.8;">
+                <li><code>theme</code> - light o dark</li>
+                <li><code>card</code> - base, minimal, detailed, compact</li>
+                <li><code>color</code> - Color primario en formato hex (ej: %233b82f6)</li>
+            </ul>
+
+            <p style="margin-top: 1rem;"><strong>Código usado en esta página:</strong></p>
             <div class="code-block">
-&lt;iframe 
-  src="http://localhost:3000/embed/wall/org-123?theme=light&card=base&fontSize=medium"
-  frameborder="0" 
-  scrolling="no" 
-  width="100%"
-  style="min-height: 600px;"
-&gt;&lt;/iframe&gt;
+                <code>&lt;div id="testimonials-wall"&gt;&lt;/div&gt;
+&lt;script&gt;
+  (function() {
+    const iframe = document.createElement('iframe');
+    iframe.src = 'http://localhost:3000/w/df4c7ca5-5107-4a13-a614-68664007bf57?theme=light&card=base&color=%233b82f6';
+    iframe.style.width = '100%';
+    iframe.style.border = 'none';
+    iframe.style.minHeight = '600px';
+    iframe.id = 'testimonials-wall-iframe';
+    
+    document.getElementById('testimonials-wall').appendChild(iframe);
+    
+    // Auto-resize
+    window.addEventListener('message', function(e) {
+      if (e.data.type === 'testimonial-wall-resize') {
+        iframe.style.height = e.data.height + 'px';
+      }
+    });
+  })();
+&lt;/script&gt;</code>
             </div>
         </div>
 
-        <!-- Demo 2: Dark Theme, Minimal Card -->
-        <div class="demo-section">
-            <h2>2. Tema Oscuro - Card Minimal</h2>
-            <div class="options">
-                <div class="option">
-                    <strong>Theme:</strong>
-                    <span>dark</span>
-                </div>
-                <div class="option">
-                    <strong>Card Layout:</strong>
-                    <span>minimal</span>
-                </div>
-                <div class="option">
-                    <strong>Font Size:</strong>
-                    <span>small</span>
-                </div>
-            </div>
-            <div class="embed-container">
-                <iframe src="http://localhost:3000/embed/wall/org-123?theme=dark&card=minimal&fontSize=small"></iframe>
-            </div>
-            <div class="code-block">
-&lt;iframe 
-  src="http://localhost:3000/embed/wall/org-123?theme=dark&card=minimal&fontSize=small"
-  frameborder="0" 
-  scrolling="no" 
-  width="100%"
-  style="min-height: 600px;"
-&gt;&lt;/iframe&gt;
-            </div>
+        <!-- Muro embebido -->
+        <div class="demo-card">
+            <h2>✨ Muro de Testimonios en Vivo</h2>
+            <p>A continuación se muestra el muro embebido:</p>
+
+            <!-- Aquí se insertará el muro -->
+            <div id="testimonials-wall"></div>
         </div>
 
-        <!-- Demo 3: Light Theme, Detailed Card -->
-        <div class="demo-section">
-            <h2>3. Tema Claro - Card Detailed</h2>
-            <div class="options">
-                <div class="option">
-                    <strong>Theme:</strong>
-                    <span>light</span>
-                </div>
-                <div class="option">
-                    <strong>Card Layout:</strong>
-                    <span>detailed</span>
-                </div>
-                <div class="option">
-                    <strong>Font Size:</strong>
-                    <span>large</span>
-                </div>
-                <div class="option">
-                    <strong>Color:</strong>
-                    <span>#10b981 (green)</span>
-                </div>
-            </div>
-            <div class="embed-container">
-                <iframe src="http://localhost:3000/embed/wall/org-123?theme=light&card=detailed&fontSize=large&color=%2310b981"></iframe>
-            </div>
-            <div class="code-block">
-&lt;iframe 
-  src="http://localhost:3000/embed/wall/org-123?theme=light&card=detailed&fontSize=large&color=%2310b981"
-  frameborder="0" 
-  scrolling="no" 
-  width="100%"
-  style="min-height: 600px;"
-&gt;&lt;/iframe&gt;
-            </div>
-        </div>
-
-        <!-- Opciones disponibles -->
-        <div class="demo-section">
-            <h2>📋 Opciones de Personalización Disponibles</h2>
-            
-            <h3>Parámetros URL:</h3>
-            <ul>
-                <li><strong>theme</strong>: <code>light</code> | <code>dark</code></li>
-                <li><strong>card</strong>: <code>base</code> | <code>minimal</code> | <code>detailed</code></li>
-                <li><strong>fontSize</strong>: <code>small</code> | <code>medium</code> | <code>large</code></li>
-                <li><strong>color</strong>: Cualquier color hex (ej: <code>%233b82f6</code>)</li>
-            </ul>
-
-            <h3>Tipos de Media Soportados:</h3>
-            <ul>
-                <li>✅ Texto simple</li>
-                <li>✅ Imágenes (URLs externas)</li>
-                <li>✅ Videos de YouTube (embed)</li>
-            </ul>
-
-            <h3>Características:</h3>
-            <ul>
-                <li>✅ Layout Masonry responsive</li>
-                <li>✅ Rating con estrellas</li>
-                <li>✅ Información de autor con avatar</li>
-                <li>✅ Categorías y tags</li>
-                <li>✅ Fechas formateadas</li>
-                <li>✅ Hover effects</li>
-            </ul>
-
-            <div style="margin-top: 20px;">
-                <a href="http://localhost:3000/embed/wall/org-123?theme=light&card=base" class="btn" target="_blank">
-                    Ver Demo Light
+        <!-- Footer -->
+        <div class="footer">
+            <p>💡 Abre el inspector de elementos para ver cómo funciona el auto-resize</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                Para obtener tu código personalizado, ve a
+                <a href="http://localhost:3000/dashboard/embed" style="color: white; text-decoration: underline;">
+                    Dashboard → Embed
                 </a>
-                <a href="http://localhost:3000/embed/wall/org-123?theme=dark&card=base" class="btn" target="_blank">
-                    Ver Demo Dark
-                </a>
-            </div>
-        </div>
-
-        <!-- Próximos pasos -->
-        <div class="demo-section">
-            <h2>🚀 Próximos Pasos</h2>
-            <ol>
-                <li>Conectar con la API real del backend (<code>GET /testimonials</code>)</li>
-                <li>Implementar filtrado por organización</li>
-                <li>Agregar paginación o infinite scroll</li>
-                <li>Crear generador de código embed en el dashboard</li>
-                <li>Implementar iframe resizer para altura dinámica</li>
-                <li>Agregar más opciones de personalización (colores, fuentes, etc.)</li>
-            </ol>
+            </p>
         </div>
     </div>
+
+    <!-- Código del widget embebido -->
+    <script>
+        (function () {
+            const iframe = document.createElement('iframe');
+            // IMPORTANTE: Reemplaza este ID con el ID de tu organización
+            iframe.src = 'http://localhost:3000/w/df4c7ca5-5107-4a13-a614-68664007bf57?theme=light&card=base&color=%233b82f6';
+            iframe.style.width = '100%';
+            iframe.style.border = 'none';
+            iframe.style.minHeight = '600px';
+            iframe.id = 'testimonials-wall-iframe';
+
+            document.getElementById('testimonials-wall').appendChild(iframe);
+
+            // Auto-resize del iframe
+            window.addEventListener('message', function (e) {
+                if (e.data.type === 'testimonial-wall-resize') {
+                    const wallIframe = document.getElementById('testimonials-wall-iframe');
+                    if (wallIframe) {
+                        wallIframe.style.height = e.data.height + 'px';
+                        console.log('📏 Iframe redimensionado a:', e.data.height + 'px');
+                    }
+                }
+            });
+
+            console.log('✅ Muro de testimonios cargado');
+        })();
+    </script>
 </body>
+
 </html>
