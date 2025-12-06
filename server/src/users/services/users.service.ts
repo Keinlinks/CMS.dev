@@ -86,8 +86,13 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
-
+    const user = await this.usersRepository.findOne({
+      where: [{ id }
+      ],
+    });
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
     /* if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }*/
