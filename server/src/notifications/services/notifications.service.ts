@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { EmailProviderService } from './email-provider.service';
 import { EmailNotificationBase } from '../email-templates/emailNotificationBase';
+import { EmailProvider } from '../ports/emailProvider';
 
 @Injectable()
 export class NotificationsService {
     constructor(
-        private readonly emailProvider: EmailProviderService,
+        private readonly emailProvider: EmailProvider,
     ) {}
 
     async sendNotificationWithTemplate(emailNotificationDto:EmailNotificationBase){

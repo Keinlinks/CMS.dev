@@ -6,7 +6,7 @@ import {
   OneToMany,
 } from 'typeorm';
 
-@Entity('Organizations')
+@Entity('organizations')
 export class Organization extends BaseEntity {
 
   @Column({ type: 'varchar', nullable: false })

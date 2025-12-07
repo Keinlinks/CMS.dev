@@ -1,6 +1,6 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { OrganizationRole } from "src/common/types/userRole";
-import { Column, Entity, Index } from "typeorm";
+import { Check, Column, CreateDateColumn, Entity, Index } from "typeorm";
 
 @Entity('invitations')
 export class Invitation extends BaseEntity {
@@ -10,7 +10,9 @@ export class Invitation extends BaseEntity {
     @Column()
     organizationId: string;
 
-    @Column()
+    // Sqlite does not support enum type, so using varchar with check instead (testing and local environment friendly)
+    @Column({ type: 'varchar' })
+    @Check(`role_asigned IN ('admin', 'editor')`)
     role_asigned: OrganizationRole;
 
     @Index()
@@ -20,7 +22,6 @@ export class Invitation extends BaseEntity {
     @Column()
     expires_at: Date;
 
-    @Column({ type: 'datetime', nullable: true })
+    @CreateDateColumn({ nullable: true })
     used_at: Date | null;
-
 }

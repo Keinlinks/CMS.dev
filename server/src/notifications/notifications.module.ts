@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { NotificationsService } from './services/notifications.service';
-import { EmailProviderService } from './services/email-provider.service';
+import { EmailProvider } from './ports/emailProvider';
+import { EmailProviderMailerSendImpl } from './adapters/emailProviderMailerSendImpl';
 
 @Module({
-  providers: [NotificationsService, EmailProviderService],
+  providers: [NotificationsService, {provide: EmailProvider, useClass: EmailProviderMailerSendImpl}],
   exports: [NotificationsService],
 })
 export class NotificationsModule {}

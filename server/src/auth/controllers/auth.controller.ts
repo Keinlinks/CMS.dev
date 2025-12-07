@@ -30,7 +30,7 @@ export class AuthController {
   }
 
   @Patch('change-password')
-  @ApiBearerAuth('Authorization')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   async changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
@@ -39,7 +39,7 @@ export class AuthController {
     return await this.authService.changePassword(changePasswordDto, user.username);
   }
   @Get('validate-token')
-  @ApiBearerAuth('Authorization')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   async validateToken(): Promise<{ success: boolean }> {
     // Guard will handle the validation

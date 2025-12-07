@@ -6,8 +6,6 @@ import { TestimonialsService } from './services/testimonials.service';
 import { MediaStorageModule } from 'src/media-storage/mediaStorage.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { CreateTestimonialsService } from './services/createTestimonial.service';
-import { MediaStorageService } from 'src/media-storage/services/mediaStorage.service';
-import { CloudinaryProviderImpl } from 'src/media-storage/adapters/cloudinaryProviderImpl';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { OrganizationModule } from 'src/organizations/organitations.module';
 import { UserOrganizationModule } from 'src/user_organization/userOrganization.module';

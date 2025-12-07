@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import Stream from 'stream';
-import { CloudinaryProviderImpl } from '../adapters/cloudinaryProviderImpl';
+import { MediaStorageProvider } from '../ports/mediaStorageProvider';
 
 @Injectable()
 export class MediaStorageService {
-  constructor(private readonly mediaStorageProvider: CloudinaryProviderImpl) {}
+  constructor(private readonly mediaStorageProvider: MediaStorageProvider) {}
 
   async uploadFile(
     file: Express.Multer.File,

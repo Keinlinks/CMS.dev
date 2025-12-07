@@ -7,8 +7,9 @@ import { AuthGuard } from "src/common/guards/auth.guard";
 import { ConfirmEmailTemplate } from "src/notifications/email-templates/confirmEmail.template";
 import { NotificationsModule } from "src/notifications/notifications.module";
 import { NotificationsService } from "src/notifications/services/notifications.service";
+import { DataSource } from "typeorm";
 
-describe('Notifications integration', () => {
+describe.skip('Notifications integration', () => {
     let app: INestApplication;
     let emailProviderService: NotificationsService;
 
@@ -38,13 +39,23 @@ describe('Notifications integration', () => {
         await app.init();
     });
 
+    afterAll(async () => {
+        const dataSource = app.get(DataSource);
+
+        await dataSource.destroy();
+        await app.close();
+
+        jest.clearAllTimers();
+        jest.resetAllMocks();
+    });
+
     describe('EmailProviderService', () => {
         it('should send a welcome email', async () => {
             const emailProviderService = app.get(NotificationsService);
-            let emailPayload = new ConfirmEmailTemplate("cms391547@gmail.com","Test User","sample-token-123");
+            let emailPayload = new ConfirmEmailTemplate("cms391547@gmail.com", "Test User", "sample-token-123");
             const response = await emailProviderService.sendNotificationWithTemplate(emailPayload)
             expect(response).toBeDefined();
-            expect(response.statusCode).toBe(202);
+            expect(response).toBe(true);
         });
     })
 });

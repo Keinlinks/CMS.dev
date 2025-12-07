@@ -10,14 +10,18 @@ import { UsersService } from "src/users/services/users.service";
 import { OrganizationsService } from "src/organizations/services/organizations.service";
 import { LoginDto } from "src/auth/dto/login.dto";
 import { UserOrganization } from "src/user_organization/entities/userOrganization.entity";
+import { EmailProvider } from "src/notifications/ports/emailProvider";
+import { EmailProviderFakeImpl } from "src/notifications/adapters/emailProviderFakeImpl";
+import { OrganizationRole } from "src/common/types/userRole";
+import { DataSource } from "typeorm";
 
 
 describe('Invitation integration', () => {
     let app: INestApplication;
-    let testUser1:User;
-    let tokenUser1:string;
-    let cmsUser!:User;
-    let tokenCmsUser:string;
+    let testUser1: User;
+    let tokenUser1: string;
+    let cmsUser!: User;
+    let tokenCmsUser: string;
 
     beforeAll(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -26,20 +30,21 @@ describe('Invitation integration', () => {
                     envFilePath: '.env',
                     isGlobal: true,
                 }),
-                AppModule,
-                SeedModule
+                AppModule
             ],
-        }).compile();
+        }).overrideProvider(EmailProvider)
+            .useClass(EmailProviderFakeImpl)
+            .compile();
         app = moduleRef.createNestApplication();
         app.useGlobalPipes(
             new ValidationPipe({ whitelist: true, transform: true }),
         );
-        
+
         await app.init();
         let userService = moduleRef.get(UsersService);
         let user = await userService.create({
             email: "invitationTest@test.com",
-            password: "123456789",
+            password: "Password123",
             username: "invitationTestUser",
             name: "Invitation Test User"
         });
@@ -48,27 +53,37 @@ describe('Invitation integration', () => {
             description: "Organization for invitation testing",
             name: "Invitation Test Org",
             questionText: "",
-        },user);
+        }, user);
         testUser1 = await userService.findOneWithOrganizations(user.id);
         const loginInput: LoginDto = {
-              password: '123456789',
-              username: user.username,
-            };
+            password: 'Password123',
+            username: user.username,
+        };
         const loginRes1 = await request
-              .default(app.getHttpServer())
-              .post('/auth/login')
-              .send(loginInput);
+            .default(app.getHttpServer())
+            .post('/auth/login')
+            .send(loginInput);
         tokenUser1 = loginRes1.body.token;
         //cms user
         const loginCmsInput: LoginDto = {
-              password: '123456789',
-              username: "cms391547@gmail.com",
-            };
+            password: 'Password123',
+            username: "cms391547@gmail.com",
+        };
         const loginCms = await request
-              .default(app.getHttpServer())
-              .post('/auth/login')
-              .send(loginCmsInput);
+            .default(app.getHttpServer())
+            .post('/auth/login')
+            .send(loginCmsInput);
         tokenCmsUser = loginCms.body.token;
+    }, 60000);
+
+    afterAll(async () => {
+        const dataSource = app.get(DataSource);
+
+        await dataSource.destroy();
+        await app.close();
+
+        jest.clearAllTimers();
+        jest.resetAllMocks();
     });
 
     describe("Organization Management - Invite", () => {
@@ -76,7 +91,7 @@ describe('Invitation integration', () => {
             const invitePayload: InviteUserToOrganizationDto = {
                 email: "cms391547@gmail.com",
                 organizationId: testUser1.userOrganizations[0].organizationId,
-                role: "editor"
+                role: OrganizationRole.EDITOR
             };
             expect(invitePayload.organizationId).toBeDefined();
             let result = await request

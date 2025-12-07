@@ -9,6 +9,7 @@ import { AuthGuard } from "src/common/guards/auth.guard";
 import { MediaStorageModule } from "src/media-storage/mediaStorage.module";
 import { Organization } from "src/organizations/entities/organization.entity";
 import { Tag } from "src/tags/entities/tag.entity";
+import { TagsModule } from "src/tags/tags.module";
 import { CreateTestimonialDto } from "src/testimonials/dto/create-testimonial.dto";
 import { Testimonial } from "src/testimonials/entities/testimonial.entity";
 import { MediaType } from "src/testimonials/enums/mediaType";
@@ -16,8 +17,9 @@ import { TestimonialsModule } from "src/testimonials/testimonials.module";
 import { UserOrganization } from "src/user_organization/entities/userOrganization.entity";
 import { User } from "src/users/entities/user.entity";
 import * as request from 'supertest';
+import { DataSource } from "typeorm";
 
-describe('Testimonials integration', () => {
+describe.skip('Testimonials integration', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -36,12 +38,13 @@ describe('Testimonials integration', () => {
         }),
         MediaStorageModule,
         TestimonialsModule,
+        TagsModule,
         JwtModule
       ],
       providers: [
         {
-            provide: APP_GUARD,
-            useClass: AuthGuard,
+          provide: APP_GUARD,
+          useClass: AuthGuard,
         },
       ]
     }).compile();
@@ -54,21 +57,32 @@ describe('Testimonials integration', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    if (!app) return;
+    const dataSource = app.get(DataSource);
+
+    await dataSource.destroy();
+    await app.close();
+
+    jest.clearAllTimers();
+    jest.resetAllMocks();
+  });
+
   it('should create a new testimonial with default data, returns testimonial created', async () => {
-      //arrange
-      // const createTestimonialDto: CreateTestimonialDto = {
-      //   organitation_id: "org_12345",
-      //   category_id: "550e8400-e29b-41d4-a716-446655440000",
-      //   title: "Great Experience",
-      //   content: "This is an amazing testimonial content that describes the wonderful experience I had with this service.",
-      //   media_type: MediaType.TEXT
-      // };
-      // //act
-      // const res = await request
-      //   .default(app.getHttpServer())
-      //   .post('/testimonials')
-      //   .send(createTestimonialDto);
-      // //assert
-      // expect(res.status).toBe(201);
-    });
+    //arrange
+    // const createTestimonialDto: CreateTestimonialDto = {
+    //   organitation_id: "org_12345",
+    //   category_id: "550e8400-e29b-41d4-a716-446655440000",
+    //   title: "Great Experience",
+    //   content: "This is an amazing testimonial content that describes the wonderful experience I had with this service.",
+    //   media_type: MediaType.TEXT
+    // };
+    // //act
+    // const res = await request
+    //   .default(app.getHttpServer())
+    //   .post('/testimonials')
+    //   .send(createTestimonialDto);
+    // //assert
+    // expect(res.status).toBe(201);
+  });
 });

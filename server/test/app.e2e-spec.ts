@@ -2,9 +2,14 @@ import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
 import { AppModule } from "src/app.module";
+import { MediaStorageProviderFakeImpl } from "src/media-storage/adapters/mediaStorageProviderFakeImpl";
+import { MediaStorageProvider } from "src/media-storage/ports/mediaStorageProvider";
+import { EmailProviderFakeImpl } from "src/notifications/adapters/emailProviderFakeImpl";
+import { EmailProvider } from "src/notifications/ports/emailProvider";
 import * as request from 'supertest';
+import { DataSource } from "typeorm";
 
-describe('Testimonials integration', () => {
+describe('App integration', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -13,7 +18,12 @@ describe('Testimonials integration', () => {
         envFilePath: '.env',
         isGlobal: true,
       }), AppModule]
-    }).compile();
+    })
+      .overrideProvider(MediaStorageProvider)
+      .useClass(MediaStorageProviderFakeImpl)
+      .overrideProvider(EmailProvider)
+      .useClass(EmailProviderFakeImpl)
+      .compile();
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(
@@ -21,12 +31,23 @@ describe('Testimonials integration', () => {
     );
 
     await app.init();
-  });
-  it('should run the app', async () => {
+  }, 60000);
 
+  afterAll(async () => {
+    if (!app) return;
+    const dataSource = app.get(DataSource);
+
+    await dataSource.destroy();
+    await app.close();
+
+    jest.clearAllTimers();
+    jest.resetAllMocks();
+  });
+
+  it('should run the app', async () => {
     const res = await request
       .default(app.getHttpServer())
-      .get('/')
-    expect(res.status).toBe(404);
+      .get('/health')
+    expect(res.status).toBe(200);
   });
 });

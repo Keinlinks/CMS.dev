@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MediaStorageService } from './services/mediaStorage.service';
-import { CloudinaryProviderImpl } from './adapters/cloudinaryProviderImpl';
+import { MediaStorageProvider } from './ports/mediaStorageProvider';
+import { MediaStorageProviderCloudinaryImpl } from './adapters/mediaStorageProviderCloudinaryImpl';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [CloudinaryProviderImpl,MediaStorageService],
+  providers: [{ provide: MediaStorageProvider, useClass:MediaStorageProviderCloudinaryImpl },MediaStorageService],
   exports: [MediaStorageService],
 })
 export class MediaStorageModule {}

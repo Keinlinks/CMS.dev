@@ -2,21 +2,20 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { Category } from 'src/categories/entities/category.entity';
-import { Tag } from 'src/tags/entities/tag.entity';
-import { Testimonial } from 'src/testimonials/entities/testimonial.entity';
 import { ConfigModule } from '@nestjs/config';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { LoginDto } from 'src/auth/dto/login.dto';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { Organization } from 'src/organizations/entities/organization.entity';
 import { OrganizationModule } from 'src/organizations/organitations.module';
-import { UserOrganization } from 'src/user_organization/entities/userOrganization.entity';
 import { UserOrganizationModule } from 'src/user_organization/userOrganization.module';
+import { MediaStorageProvider } from 'src/media-storage/ports/mediaStorageProvider';
+import { MediaStorageProviderFakeImpl } from 'src/media-storage/adapters/mediaStorageProviderFakeImpl';
+import { EmailProvider } from 'src/notifications/ports/emailProvider';
+import { EmailProviderFakeImpl } from 'src/notifications/adapters/emailProviderFakeImpl';
+import { DataSource } from 'typeorm';
 
 describe('Auth integration', () => {
   let app: INestApplication;
@@ -32,7 +31,7 @@ describe('Auth integration', () => {
           type: 'sqlite',
           database: ':memory:',
           dropSchema: true,
-          entities: [User, Testimonial, Tag, Category,Organization,UserOrganization],
+          autoLoadEntities: true,
           synchronize: true,
         }),
         UsersModule,
@@ -41,12 +40,17 @@ describe('Auth integration', () => {
         AuthModule,
       ],
       providers: [
-          {
-            provide: APP_GUARD,
-            useClass: AuthGuard,
-          },
-        ],
-    }).compile();
+        {
+          provide: APP_GUARD,
+          useClass: AuthGuard,
+        },
+      ],
+    }).overrideProvider(MediaStorageProvider)
+      .useClass(MediaStorageProviderFakeImpl)
+      .overrideProvider(EmailProvider)
+      .useClass(EmailProviderFakeImpl)
+
+      .compile();
 
     app = moduleRef.createNestApplication();
     app.useGlobalPipes(
@@ -56,10 +60,20 @@ describe('Auth integration', () => {
     await app.init();
   });
 
+  afterAll(async () => {
+    const dataSource = app.get(DataSource);
+
+    await dataSource.destroy();
+    await app.close();
+
+    jest.clearAllTimers();
+    jest.resetAllMocks();
+  });
+
   it('should register a new user', async () => {
     //arrange
     const registerDto: RegisterDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_1',
       email: 'test_1@test.com',
       lastname: 'test',
@@ -76,7 +90,7 @@ describe('Auth integration', () => {
   it('should throw exception, email not valid', async () => {
     //arrange
     const registerDto: RegisterDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_2',
       email: 'testtest.com',
       lastname: 'test',
@@ -94,11 +108,11 @@ describe('Auth integration', () => {
   it('should login and return token', async () => {
     //arrange
     const loginInput: LoginDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_3',
     };
     const registerDto: RegisterDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_3',
       email: 'test_3@test.com',
       lastname: 'test',
@@ -118,14 +132,14 @@ describe('Auth integration', () => {
     expect(res.status).toBe(200);
     expect(res.body.token).toBeDefined();
   });
-  it('should throw unauthorized exception', async () => {
+  it('should throw unauthorized exception, bad password', async () => {
     //arrange
     const loginInput: LoginDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_4',
     };
     const registerDto: RegisterDto = {
-      password: '123457',
+      password: 'Password12',
       username: 'test_4',
       email: 'test_4@test.com',
       lastname: 'test',
@@ -157,11 +171,11 @@ describe('Auth integration', () => {
   it('validate token: should return 200 code', async () => {
     //arrange
     const loginInput: LoginDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_5',
     };
     const registerDto: RegisterDto = {
-      password: '1234567',
+      password: 'Password123',
       username: 'test_5',
       email: 'test_5@test.com',
       lastname: 'test',

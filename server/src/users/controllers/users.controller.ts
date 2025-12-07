@@ -11,36 +11,26 @@ import {
 import { UsersService } from '../services/users.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { User } from '../entities/user.entity';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-@Controller('users')
+@Controller('users/me')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @ApiBearerAuth()
+  findMe(@GetUser() user:User) {
+    return this.usersService.findOneWithOrganizations(user.id);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.findOneWithOrganizations(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
+  @Patch()
+  @ApiBearerAuth()
+  updateMe(
+    @GetUser() user:User,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.remove(id);
+    return this.usersService.update(user.id, updateUserDto);
   }
 }

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Stream, { Readable } from 'stream';
 import { v2 as cloudinary } from 'cloudinary';
 import { unlink } from 'fs/promises';
+import { MediaStorageProvider } from '../ports/mediaStorageProvider';
 
 @Injectable()
-export class CloudinaryProviderImpl {
+export class MediaStorageProviderCloudinaryImpl implements MediaStorageProvider {
 
   constructor(private config: ConfigService) {
     cloudinary.config({
