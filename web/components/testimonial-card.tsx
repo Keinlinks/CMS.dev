@@ -1,6 +1,8 @@
 'use client';
 
 import { Star } from 'lucide-react';
+import { getInitials, getAvatarColor } from '@/lib/utils/avatar-helpers';
+import { Avatar } from '@/components/ui/avatar-initials';
 
 export type CardLayout = 'base' | 'minimal' | 'detailed';
 export type FontSize = 'small' | 'medium' | 'large';
@@ -50,7 +52,7 @@ export function TestimonialCard({
         large: 'text-lg'
     };
 
-    // Render stars
+    // Render stars with dynamic primary color
     const renderStars = () => {
         return (
             <div className="flex gap-0.5">
@@ -58,11 +60,15 @@ export function TestimonialCard({
                     <Star
                         key={i}
                         className={`w-4 h-4 ${i < testimonial.stars_rating
-                            ? 'fill-yellow-400 text-yellow-400'
+                            ? ''
                             : isDark
                                 ? 'text-gray-600'
                                 : 'text-gray-300'
                             }`}
+                        style={i < testimonial.stars_rating ? {
+                            fill: 'var(--primary-color, #fbbf24)',
+                            color: 'var(--primary-color, #fbbf24)'
+                        } : undefined}
                     />
                 ))}
             </div>
@@ -128,13 +134,11 @@ export function TestimonialCard({
                     "{testimonial.content}"
                 </p>
                 <div className="flex items-center gap-3">
-                    {testimonial.author.avatar && (
-                        <img
-                            src={testimonial.author.avatar}
-                            alt={testimonial.author.name}
-                            className="w-10 h-10 rounded-full"
-                        />
-                    )}
+                    <Avatar
+                        name={testimonial.author.name}
+                        avatar={testimonial.author.avatar}
+                        size="md"
+                    />
                     <div>
                         <p className={`font-semibold ${titleSizeClasses[fontSize]}`}>
                             {testimonial.author.name}
@@ -156,13 +160,11 @@ export function TestimonialCard({
             <div className={cardBaseClasses}>
                 <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                        {testimonial.author.avatar && (
-                            <img
-                                src={testimonial.author.avatar}
-                                alt={testimonial.author.name}
-                                className="w-12 h-12 rounded-full"
-                            />
-                        )}
+                        <Avatar
+                            name={testimonial.author.name}
+                            avatar={testimonial.author.avatar}
+                            size="lg"
+                        />
                         <div>
                             <p className={`font-semibold ${titleSizeClasses[fontSize]}`}>
                                 {testimonial.author.name}
@@ -230,13 +232,11 @@ export function TestimonialCard({
             </p>
 
             <div className={`flex items-center gap-3 pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                {testimonial.author.avatar && (
-                    <img
-                        src={testimonial.author.avatar}
-                        alt={testimonial.author.name}
-                        className="w-10 h-10 rounded-full"
-                    />
-                )}
+                <Avatar
+                    name={testimonial.author.name}
+                    avatar={testimonial.author.avatar}
+                    size="md"
+                />
                 <div className="flex-1">
                     <p className={`font-semibold ${fontSizeClasses[fontSize]}`}>
                         {testimonial.author.name}

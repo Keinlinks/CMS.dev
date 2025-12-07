@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown, Plus, GalleryVerticalEnd, type LucideIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { switchOrganizationAction } from "@/lib/actions/sidebar"
 
 import {
   DropdownMenu,
@@ -20,92 +21,64 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-const DEFAULT_LOGO = "/logo-por-defecto.png"
-
-type TeamLogo = React.ElementType | string
+// Mapeo de nombres de iconos a componentes
+const iconMap: Record<string, LucideIcon> = {
+  GalleryVerticalEnd,
+}
 
 export function TeamSwitcher({
   teams,
+  currentOrgId,
 }: {
   teams: {
+    id: string
     name: string
-    logo?: TeamLogo
-    plan?: string
+    logo: string | React.ElementType
+    plan: string
   }[]
+  currentOrgId?: string
 }) {
   const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0] || null)
   const router = useRouter()
 
+  // Encontrar la organización actual
+  const activeTeam = teams.find(t => t.id === currentOrgId) || teams[0]
+
   const [mounted, setMounted] = React.useState(false)
+  const [isSwitching, setIsSwitching] = React.useState(false)
 
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Helper function to render logo
-  const renderLogo = (logo: TeamLogo | undefined, size: "sm" | "md" = "md") => {
-    const logoSize = size === "sm" ? "size-3.5" : "size-4"
-    const containerSize = size === "sm" ? "size-6" : "size-8"
+  const handleSwitchOrganization = async (teamId: string) => {
+    if (teamId === activeTeam?.id) return // Ya está en esta organización
 
-    if (!logo) {
-      return (
-        <div className={`${containerSize} flex items-center justify-center rounded-lg overflow-hidden bg-sidebar-primary`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={DEFAULT_LOGO}
-            alt="Default logo"
-            className="w-full h-full object-contain"
-          />
-        </div>
-      )
+    setIsSwitching(true)
+
+    try {
+      const result = await switchOrganizationAction(teamId)
+
+      if (result.success) {
+        // Refrescar la página para actualizar el sidebar con los nuevos datos
+        router.refresh()
+      } else {
+        console.error('Error switching organization:', result.error)
+      }
+    } catch (error) {
+      console.error('Error switching organization:', error)
+    } finally {
+      setIsSwitching(false)
     }
-
-    if (typeof logo === "string") {
-      return (
-        <div className={`${containerSize} flex items-center justify-center rounded-lg overflow-hidden bg-sidebar-primary`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logo || DEFAULT_LOGO}
-            alt="Logo"
-            className="w-full h-full object-contain"
-            onError={(e) => {
-              // Fallback to default logo on error
-              const target = e.target as HTMLImageElement
-              if (target.src !== `${window.location.origin}${DEFAULT_LOGO}`) {
-                target.src = DEFAULT_LOGO
-              }
-            }}
-          />
-        </div>
-      )
-    }
-
-    // React component (icon)
-    const LogoComponent = logo
-    return (
-      <div className={`bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square ${containerSize} items-center justify-center rounded-lg`}>
-        <LogoComponent className={logoSize} />
-      </div>
-    )
   }
 
-  if (!activeTeam || teams.length === 0) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg" onClick={() => router.push('/dashboard/organizations/new')}>
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-              <Plus className="size-4" />
-            </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">Agregar organización</span>
-              <span className="truncate text-xs text-muted-foreground">Crea tu primera organización</span>
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    )
+  // Convertir logo string a componente
+  const LogoComponent = typeof activeTeam?.logo === 'string'
+    ? (iconMap[activeTeam.logo] || GalleryVerticalEnd)
+    : (activeTeam?.logo || GalleryVerticalEnd)
+
+  if (!activeTeam) {
+    return null
   }
 
   if (!mounted) {
@@ -113,10 +86,12 @@ export function TeamSwitcher({
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg">
-            {renderLogo(activeTeam.logo)}
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <LogoComponent className="size-4" />
+            </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{activeTeam.name}</span>
-              <span className="truncate text-xs">{activeTeam.plan || "Active"}</span>
+              <span className="truncate text-xs">{activeTeam.plan}</span>
             </div>
             <ChevronsUpDown className="ml-auto" />
           </SidebarMenuButton>
@@ -133,11 +108,14 @@ export function TeamSwitcher({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              disabled={isSwitching}
             >
-              {renderLogo(activeTeam.logo)}
+              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <LogoComponent className="size-4" />
+              </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan || "Active"}</span>
+                <span className="truncate text-xs">{activeTeam.plan}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -151,23 +129,31 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Organizaciones
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
-              <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
-              >
-                <div className="flex size-6 items-center justify-center rounded-md border overflow-hidden">
-                  {renderLogo(team.logo, "sm")}
-                </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
+            {teams.map((team, index) => {
+              const TeamLogo = typeof team.logo === 'string'
+                ? (iconMap[team.logo] || GalleryVerticalEnd)
+                : (team.logo || GalleryVerticalEnd)
+
+              return (
+                <DropdownMenuItem
+                  key={team.id}
+                  onClick={() => handleSwitchOrganization(team.id)}
+                  className="gap-2 p-2"
+                  disabled={isSwitching}
+                >
+                  <div className="flex size-6 items-center justify-center rounded-md border">
+                    <TeamLogo className="size-3.5 shrink-0" />
+                  </div>
+                  {team.name}
+                  <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                </DropdownMenuItem>
+              )
+            })}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="gap-2 p-2"
               onClick={() => router.push('/dashboard/organizations/new')}
+              disabled={isSwitching}
             >
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />

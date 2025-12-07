@@ -170,6 +170,8 @@ export interface InviteTestimonialDto {
 
 export type UpdateTestimonialDto = object;
 
+export type ChangeStatusDto = object;
+
 export type CreateCategoryDto = object;
 
 export type UpdateCategoryDto = object;
@@ -210,8 +212,8 @@ export interface LoginDto {
   username: string;
   /**
    * Password
-   * @minLength 6
-   * @example "password123"
+   * @minLength 8
+   * @example "Password123"
    */
   password: string;
 }
@@ -229,8 +231,8 @@ export interface RegisterDto {
   email: string;
   /**
    * Password
-   * @minLength 6
-   * @example "password123"
+   * @minLength 8
+   * @example "Password123"
    */
   password: string;
   /**
@@ -271,8 +273,8 @@ export interface InviteUserToOrganizationDto {
    */
   organizationId: string;
   /**
-   * Role that will be assigned to the invited user within the organization. If omitted, a default role may be applied (EDITOR).
-   * @example "EDITOR"
+   * Role that will be assigned to the invited user within the organization. If omitted, a default role may be applied (editor).
+   * @example "editor"
    */
   role?: string;
 }
@@ -683,6 +685,23 @@ export class Api<
          * @example "approved"
          */
         status?: string;
+        /**
+         * Stars rating (1 to 5)
+         * @min 1
+         * @max 5
+         * @example 5
+         */
+        startsRating?: number;
+        /**
+         * Filter testimonials created from this date (ISO)
+         * @example "2025-01-01"
+         */
+        createdFrom?: string;
+        /**
+         * Filter testimonials created until this date (ISO)
+         * @example "2025-01-31"
+         */
+        createdTo?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -691,6 +710,50 @@ export class Api<
         method: "GET",
         query: query,
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Testimonials
+     * @name TestimonialsControllerWallTestimonials
+     * @summary Retrieve a list of published testimonials of an organization
+     * @request GET:/testimonials/wall
+     */
+    testimonialsControllerWallTestimonials: (
+      query: {
+        /**
+         * Page number for pagination.
+         * @default 1
+         * @example "1"
+         */
+        page?: number;
+        /**
+         * Items per page.
+         * @default 10
+         * @example "10"
+         */
+        itemsPerPage?: number;
+        /**
+         * Sort items by date.
+         * @default "ASC"
+         * @example "ASC"
+         */
+        sort?: string;
+        /**
+         * ID of the organization to get testimonials.
+         * @example "61dd833b-54df-407e-b9e7-b8e1a5484c8d"
+         */
+        organitationId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<TestimonialResponseDto[], any>({
+        path: `/testimonials/wall`,
+        method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -768,6 +831,27 @@ export class Api<
         path: `/testimonials/${id}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Testimonials
+     * @name TestimonialsControllerChangeStatus
+     * @request POST:/testimonials/change-status
+     * @secure
+     */
+    testimonialsControllerChangeStatus: (
+      data: ChangeStatusDto,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/testimonials/change-status`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
   };
@@ -892,7 +976,7 @@ export class Api<
      *
      * @tags Organizations
      * @name OrganizationsControllerCreate
-     * @summary Create a organization
+     * @summary Create an organization. For upload a logo image, send a "file" field in multipart/form-data.
      * @request POST:/organizations
      * @secure
      */
@@ -914,6 +998,7 @@ export class Api<
      *
      * @tags Organizations
      * @name OrganizationsControllerFindUserOrganizations
+     * @summary Retrieve a list of user's organizations
      * @request GET:/organizations
      * @secure
      */
@@ -1240,6 +1325,7 @@ export class Api<
      * @name OrganizationManagementControllerInviteUser
      * @summary Invite a user to organization
      * @request POST:/organization-management/invite
+     * @secure
      */
     organizationManagementControllerInviteUser: (
       data: InviteUserToOrganizationDto,
@@ -1249,6 +1335,7 @@ export class Api<
         path: `/organization-management/invite`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -1268,7 +1355,7 @@ export class Api<
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, any>({
+      this.request<any, void>({
         path: `/organization-management/invite`,
         method: "GET",
         query: query,

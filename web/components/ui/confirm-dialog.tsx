@@ -16,10 +16,11 @@ interface ConfirmDialogProps {
     onOpenChange: (open: boolean) => void
     title: string
     description: string
-    onConfirm: () => void
+    onConfirm: () => void | Promise<void>
     confirmText?: string
     cancelText?: string
     variant?: 'default' | 'destructive'
+    disabled?: boolean
 }
 
 export function ConfirmDialog({

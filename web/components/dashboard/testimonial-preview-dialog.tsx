@@ -1,241 +1,342 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { DashboardTestimonial } from "@/lib/mockDashboardTestimonials"
-import { Check, X, Eye, EyeOff, Trash2, Calendar, Tag, ExternalLink } from "lucide-react"
-import { canApprove, canReject, canPublish, canUnpublish, canDelete, mockCurrentUser } from "@/lib/mockUser"
+import { Card, CardContent } from "@/components/ui/card"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { Check, X, Eye, EyeOff, Trash2, Star } from "lucide-react"
+import { useUserRole } from "@/components/providers/user-role-provider"
+import { useToast } from "@/hooks/use-toast"
+import {
+    changeTestimonialStatusAction,
+    deleteTestimonialAction
+} from "@/lib/actions/testimonials"
+import { TestimonialStatus } from "@/lib/types/testimonial-status"
 
 interface TestimonialPreviewDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    testimonial: DashboardTestimonial
-    onAction: (action: string) => void
+    testimonial: any
 }
 
 export function TestimonialPreviewDialog({
     open,
     onOpenChange,
     testimonial,
-    onAction
 }: TestimonialPreviewDialogProps) {
-    const userRole = mockCurrentUser.role
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [isProcessing, setIsProcessing] = useState(false)
 
-    // Helper para renderizar media
-    const renderMedia = () => {
-        if (testimonial.media_type === 'image' && testimonial.media_url) {
-            return (
-                <div className="rounded-lg overflow-hidden border bg-muted/20 mb-4">
-                    <img
-                        src={testimonial.media_url}
-                        alt="Testimonial media"
-                        className="w-full h-auto max-h-[400px] object-contain"
-                    />
-                </div>
+    const { isAdmin, hasRole } = useUserRole()
+    const router = useRouter()
+    const { toast } = useToast()
+
+    const currentStatus = testimonial.status?.toUpperCase()
+
+    // Helper para obtener color del badge según estado
+    const getStatusColor = (status: string) => {
+        const s = status?.toUpperCase()
+        switch (s) {
+            case 'PENDING':
+                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+            case 'APPROVED':
+                return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+            case 'PUBLISHED':
+                return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+            case 'REJECTED':
+                return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+            default:
+                return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+        }
+    }
+
+    const getStatusText = (status: string) => {
+        const s = status?.toUpperCase()
+        switch (s) {
+            case 'PENDING': return 'Pendiente'
+            case 'APPROVED': return 'Aprobado'
+            case 'PUBLISHED': return 'Publicado'
+            case 'REJECTED': return 'Rechazado'
+            default: return status
+        }
+    }
+
+    const handleAction = async (action: string) => {
+        if (action === 'delete') {
+            setShowDeleteConfirm(true)
+            return
+        }
+
+        setIsProcessing(true)
+        let newStatus: TestimonialStatus | null = null
+
+        // Mapear acción de UI a estado del enum
+        switch (action) {
+            case 'approve':
+                newStatus = TestimonialStatus.APPROVED
+                break
+            case 'reject':
+                newStatus = TestimonialStatus.REJECTED
+                break
+            case 'publish':
+                newStatus = TestimonialStatus.PUBLISHED
+                break
+            case 'unpublish':
+                // Despublicar = volver a approved
+                newStatus = TestimonialStatus.APPROVED
+                break
+            default:
+                setIsProcessing(false)
+                return
+        }
+
+        try {
+            // ✅ Usar la función unificada
+            const result = await changeTestimonialStatusAction(testimonial.id, newStatus)
+
+            if (result.success) {
+                toast({
+                    title: "Éxito",
+                    description: result.message,
+                })
+                onOpenChange(false) // Cerrar modal
+                router.refresh() // Actualizar datos
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error,
+                    variant: "destructive"
+                })
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Ocurrió un error inesperado",
+                variant: "destructive"
+            })
+        } finally {
+            setIsProcessing(false)
+        }
+    }
+
+    const handleConfirmDelete = async () => {
+        setIsProcessing(true)
+
+        try {
+            const result = await deleteTestimonialAction(testimonial.id)
+
+            if (result.success) {
+                toast({
+                    title: "Eliminado",
+                    description: result.message,
+                    variant: "destructive"
+                })
+                setShowDeleteConfirm(false)
+                onOpenChange(false)
+                router.refresh()
+            } else {
+                toast({
+                    title: "Error",
+                    description: result.error,
+                    variant: "destructive"
+                })
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Ocurrió un error al eliminar",
+                variant: "destructive"
+            })
+        } finally {
+            setIsProcessing(false)
+        }
+    }
+
+    // Determinar qué botones mostrar según estado y rol
+    const renderActionButtons = () => {
+        const buttons = []
+
+        // PENDING: Aprobar o Rechazar (Editor+)
+        if (currentStatus === 'PENDING' && hasRole('editor')) {
+            buttons.push(
+                <Button
+                    key="approve"
+                    onClick={() => handleAction('approve')}
+                    disabled={isProcessing}
+                    className="bg-green-600 hover:bg-green-700"
+                >
+                    <Check className="w-4 h-4 mr-2" />
+                    Aprobar
+                </Button>,
+                <Button
+                    key="reject"
+                    variant="outline"
+                    onClick={() => handleAction('reject')}
+                    disabled={isProcessing}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                    <X className="w-4 h-4 mr-2" />
+                    Rechazar
+                </Button>
             )
         }
 
-        if (testimonial.media_type === 'video' && testimonial.media_url) {
-            // Simple detección de YouTube para el ejemplo
-            const isYouTube = testimonial.media_url.includes('youtube') || testimonial.media_url.length === 11 // ID length
-
-            return (
-                <div className="rounded-lg overflow-hidden border bg-black mb-4 aspect-video flex items-center justify-center relative">
-                    {isYouTube ? (
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${testimonial.media_url}`}
-                            title="YouTube video player"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
-                    ) : (
-                        <div className="text-white flex flex-col items-center">
-                            <VideoIcon className="w-12 h-12 mb-2 opacity-50" />
-                            <span className="text-sm opacity-75">Video Player Placeholder</span>
-                        </div>
-                    )}
-                </div>
+        // APPROVED: Publicar (Solo Admin)
+        if (currentStatus === 'APPROVED' && isAdmin) {
+            buttons.push(
+                <Button
+                    key="publish"
+                    onClick={() => handleAction('publish')}
+                    disabled={isProcessing}
+                    className="bg-blue-600 hover:bg-blue-700"
+                >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Publicar
+                </Button>
             )
         }
 
-        return null
+        // PUBLISHED: Despublicar (Solo Admin)
+        if (currentStatus === 'PUBLISHED' && isAdmin) {
+            buttons.push(
+                <Button
+                    key="unpublish"
+                    variant="outline"
+                    onClick={() => handleAction('unpublish')}
+                    disabled={isProcessing}
+                >
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Despublicar
+                </Button>
+            )
+        }
+
+        // REJECTED: Aprobar (Admin) o Eliminar (Admin)
+        if (currentStatus === 'REJECTED' && isAdmin) {
+            buttons.push(
+                <Button
+                    key="approve"
+                    onClick={() => handleAction('approve')}
+                    disabled={isProcessing}
+                    className="bg-green-600 hover:bg-green-700"
+                >
+                    <Check className="w-4 h-4 mr-2" />
+                    Aprobar
+                </Button>,
+                <Button
+                    key="delete"
+                    variant="destructive"
+                    onClick={() => handleAction('delete')}
+                    disabled={isProcessing}
+                >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Eliminar
+                </Button>
+            )
+        }
+
+        return buttons
     }
 
-    // Botones de acción según estado y rol (reutilizando lógica)
-    const renderActions = () => {
-        const actions = []
-        const { status } = testimonial
-
-        if (status === 'pending') {
-            if (canApprove(userRole)) {
-                actions.push(
-                    <Button key="approve" onClick={() => onAction('approve')} className="bg-blue-600 hover:bg-blue-700">
-                        <Check className="w-4 h-4 mr-2" /> Aprobar
-                    </Button>
-                )
-            }
-            if (canReject(userRole)) {
-                actions.push(
-                    <Button key="reject" variant="outline" onClick={() => onAction('reject')} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                        <X className="w-4 h-4 mr-2" /> Rechazar
-                    </Button>
-                )
-            }
-        }
-
-        if (status === 'approved') {
-            if (canPublish(userRole)) {
-                actions.push(
-                    <Button key="publish" onClick={() => onAction('publish')} className="bg-green-600 hover:bg-green-700">
-                        <Eye className="w-4 h-4 mr-2" /> Publicar
-                    </Button>
-                )
-            }
-            if (canReject(userRole)) {
-                actions.push(
-                    <Button key="reject" variant="outline" onClick={() => onAction('reject')} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                        <X className="w-4 h-4 mr-2" /> Rechazar
-                    </Button>
-                )
-            }
-        }
-
-        if (status === 'published') {
-            if (canUnpublish(userRole)) {
-                actions.push(
-                    <Button key="unpublish" variant="secondary" onClick={() => onAction('unpublish')}>
-                        <EyeOff className="w-4 h-4 mr-2" /> Despublicar
-                    </Button>
-                )
-            }
-            if (canReject(userRole)) {
-                actions.push(
-                    <Button key="reject" variant="outline" onClick={() => onAction('reject')} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                        <X className="w-4 h-4 mr-2" /> Rechazar
-                    </Button>
-                )
-            }
-        }
-
-        if (status === 'rejected') {
-            if (canApprove(userRole)) {
-                actions.push(
-                    <Button key="approve" variant="outline" onClick={() => onAction('approve')}>
-                        <Check className="w-4 h-4 mr-2" /> Aprobar
-                    </Button>
-                )
-            }
-            if (canDelete(userRole)) {
-                actions.push(
-                    <Button key="delete" variant="destructive" onClick={() => onAction('delete')}>
-                        <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                    </Button>
-                )
-            }
-        }
-
-        return actions
-    }
+    // Debug: Log del rol del usuario
+    console.log('🔍 useUserRole:', { isAdmin, hasEditor: hasRole('editor') })
+    console.log('📋 Testimonio:', { id: testimonial.id, status: currentStatus })
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-3 text-xl">
-                        <UserAvatar name={testimonial.author.name} />
-                        <div className="flex flex-col">
-                            <span>{testimonial.author.name}</span>
-                            <span className="text-sm font-normal text-muted-foreground">{testimonial.author.title}</span>
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader className="space-y-3">
+                        <div className="flex items-start justify-between gap-4 pr-6">
+                            <DialogTitle className="text-lg sm:text-xl">Vista Previa del Testimonio</DialogTitle>
+                            <Badge className={`${getStatusColor(testimonial.status)} shrink-0`}>
+                                {getStatusText(testimonial.status)}
+                            </Badge>
                         </div>
-                    </DialogTitle>
-                </DialogHeader>
+                    </DialogHeader>
 
-                <ScrollArea className="flex-1 pr-4 -mr-4">
-                    <div className="space-y-6 py-4">
-                        {/* Rating y Fecha */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                    <span key={i} className={`text-lg ${i < testimonial.stars_rating ? 'text-yellow-500' : 'text-gray-300'}`}>
-                                        ★
-                                    </span>
+                    {/* Card del testimonio como aparecería en el muro */}
+                    <Card className="border-2">
+                        <CardContent className="pt-6">
+                            {/* Rating */}
+                            <div className="flex items-center gap-1 mb-3">
+                                {Array.from({ length: testimonial.stars_rating || 5 }).map((_, i) => (
+                                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                                 ))}
                             </div>
-                            <div className="flex items-center text-sm text-muted-foreground">
-                                <Calendar className="w-4 h-4 mr-1" />
-                                {new Date(testimonial.created_at).toLocaleDateString('es-ES', {
-                                    year: 'numeric', month: 'long', day: 'numeric'
-                                })}
-                            </div>
-                        </div>
 
-                        {/* Título y Contenido */}
-                        <div>
-                            <h3 className="text-lg font-semibold mb-2">{testimonial.title}</h3>
-                            <p className="text-base leading-relaxed whitespace-pre-wrap">
+                            {/* Título */}
+                            <h3 className="text-xl font-semibold mb-2">
+                                {testimonial.title}
+                            </h3>
+
+                            {/* Contenido */}
+                            <p className="text-muted-foreground mb-4 whitespace-pre-wrap">
                                 {testimonial.content}
                             </p>
+
+                            {/* Autor */}
+                            <div className="flex items-center gap-3 pt-4 border-t">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <span className="text-sm font-medium">
+                                        {(testimonial.client_name || 'U')[0].toUpperCase()}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p className="font-medium text-sm">
+                                        {testimonial.client_name || 'Usuario'}
+                                    </p>
+                                    {testimonial.client_email && (
+                                        <p className="text-xs text-muted-foreground">
+                                            {testimonial.client_email}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Categoría y fecha */}
+                            <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
+                                {testimonial.category_name && (
+                                    <span className="px-2 py-1 bg-muted rounded">
+                                        {testimonial.category_name}
+                                    </span>
+                                )}
+                                {testimonial.created_at && (
+                                    <span>
+                                        {new Date(testimonial.created_at).toLocaleDateString('es-ES')}
+                                    </span>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Botones de acción */}
+                    {renderActionButtons().length > 0 && (
+                        <div className="flex gap-2 justify-end pt-4 border-t">
+                            {renderActionButtons()}
                         </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
-                        {/* Media */}
-                        {renderMedia()}
-
-                        {/* Metadatos */}
-                        <div className="flex flex-wrap gap-2 pt-2 border-t">
-                            <Badge variant="secondary" className="flex items-center gap-1">
-                                <Tag className="w-3 h-3" />
-                                {testimonial.category.name}
-                            </Badge>
-                            {testimonial.tags.map(tag => (
-                                <Badge key={tag} variant="outline" className="text-muted-foreground">
-                                    #{tag}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
-                </ScrollArea>
-
-                <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-4">
-                    <div className="flex w-full justify-between items-center">
-                        <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                            Cerrar
-                        </Button>
-                        <div className="flex gap-2">
-                            {renderActions()}
-                        </div>
-                    </div>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
-}
-
-function VideoIcon({ className }: { className?: string }) {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={className}
-        >
-            <path d="m22 8-6 4 6 4V8Z" />
-            <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
-        </svg>
+            <ConfirmDialog
+                open={showDeleteConfirm}
+                onOpenChange={setShowDeleteConfirm}
+                title="Eliminar Testimonio"
+                description="¿Estás seguro de que deseas eliminar este testimonio? Esta acción no se puede deshacer."
+                onConfirm={handleConfirmDelete}
+                confirmText="Eliminar"
+                cancelText="Cancelar"
+                variant="destructive"
+            />
+        </>
     )
 }
