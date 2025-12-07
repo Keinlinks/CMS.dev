@@ -3,8 +3,10 @@ import { OrganizationRole } from "src/common/types/userRole";
 import { UserOrganizationService } from "src/user_organization/services/userOrganization.service";
 
 
-export class EjectUserFromOrganizationService {
+export class EjectUserFromOrganizationUseCase {
+    
     constructor(private userOrganizationService: UserOrganizationService) { }
+
     async execute(ejectUserId: string, adminUserId: string, organizationId: string) {
         if (ejectUserId === adminUserId)
             throw new ForbiddenException('An administrator cannot eject themselves');

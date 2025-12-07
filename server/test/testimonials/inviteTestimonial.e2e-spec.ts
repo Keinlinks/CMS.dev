@@ -182,11 +182,6 @@ describe('Testimonials invite', () => {
             .send(inviteTestimonialDto)
             .set('Authorization', `Bearer ${token}`);
         //assert
-        try{
-            expect(res.status).toBe(HttpStatus.NOT_FOUND);
-        }
-        catch(err){
-            console.error(res.body)
-        }
+        expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
     });
 });

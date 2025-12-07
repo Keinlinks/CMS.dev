@@ -1,11 +1,11 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { InvitationsService } from "./invitations.service";
 import { UserOrganizationService } from "src/user_organization/services/userOrganization.service";
 import { OrganizationsService } from "src/organizations/services/organizations.service";
+import { InvitationsService } from "../services/invitations.service";
 
 @Injectable()
-export class AcceptInvitationService {
-  private readonly logger = new Logger(AcceptInvitationService.name);
+export class AcceptInvitationUseCase {
+  private readonly logger = new Logger(AcceptInvitationUseCase.name);
   constructor(
     private readonly organizationsService: OrganizationsService,
     private readonly userOrganizationService: UserOrganizationService,

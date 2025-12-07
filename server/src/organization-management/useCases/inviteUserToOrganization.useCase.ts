@@ -5,14 +5,14 @@ import { UserOrganizationService } from "src/user_organization/services/userOrga
 import { InviteUserToOrganizationDto } from "../dto/inviteUserToOrganization.dto";
 import { UsersService } from "src/users/services/users.service";
 import { InvitationEmailTemplate } from "src/notifications/email-templates/invitation.template";
-import { InvitationsService } from "./invitations.service";
-import { createHash, randomBytes } from "crypto";
 import { EncoderService } from "src/common/services/encoder.service";
 import { OrganizationRole } from "src/common/types/userRole";
+import { InvitationsService } from "../services/invitations.service";
 
 @Injectable()
-export class InviteUserToOrganizationService {
-    private readonly logger = new Logger(InviteUserToOrganizationService.name);
+export class InviteUserToOrganizationUseCase {
+    private readonly logger = new Logger(InviteUserToOrganizationUseCase.name);
+
     constructor(
         private readonly organizationsService: OrganizationsService,
         private readonly userOrganizationService: UserOrganizationService,
