@@ -40,25 +40,25 @@ import { Input } from "@/components/ui/input"
 
 export function EditorInvite({
     editors,
+    currentOrgId,
 }: {
     editors?: {
         name: string
         email: string
         role: string
+        userId?: string
     }[]
+    currentOrgId?: string
 }) {
     const { isMobile } = useSidebar()
     const [open, setOpen] = React.useState(false)
     const [email, setEmail] = React.useState("")
     const [isSubmitting, setIsSubmitting] = React.useState(false)
     const [mounted, setMounted] = React.useState(false)
-    const [editorToDelete, setEditorToDelete] = React.useState<string | null>(null)
+    const [editorToDelete, setEditorToDelete] = React.useState<{ email: string; userId?: string } | null>(null)
 
-    // Default editors if none provided
-    const editorsList = editors || [
-        { name: "Editor Principal", email: "editor@example.com", role: "Admin" },
-        { name: "Editor Secundario", email: "editor2@example.com", role: "Editor" },
-    ]
+    // Usar los editores reales o un array vacío
+    const editorsList = editors || []
 
     React.useEffect(() => {
         setMounted(true)
@@ -66,13 +66,19 @@ export function EditorInvite({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!currentOrgId) {
+            alert('No hay organización seleccionada')
+            return
+        }
+
         setIsSubmitting(true)
 
-        // TODO: Implement the actual invitation logic here
-        // For now, just simulate an API call
+        // TODO: Implementar la lógica de invitación cuando tengamos las funciones del servidor
         await new Promise(resolve => setTimeout(resolve, 1000))
 
-        console.log("Inviting editor:", email)
+        console.log("Invitando editor:", email, "a organización:", currentOrgId)
+        alert('Funcionalidad de invitación pendiente de implementar')
 
         // Reset form and close dialog
         setEmail("")
@@ -81,10 +87,11 @@ export function EditorInvite({
     }
 
     const handleDeleteEditor = async () => {
-        if (!editorToDelete) return
+        if (!editorToDelete || !currentOrgId) return
 
-        // TODO: Implement the actual delete logic here
-        console.log("Deleting editor:", editorToDelete)
+        // TODO: Implementar la lógica de eliminación cuando tengamos las funciones del servidor
+        console.log("Eliminando editor:", editorToDelete.email, "de organización:", currentOrgId)
+        alert('Funcionalidad de eliminación pendiente de implementar')
 
         // Close the alert dialog
         setEditorToDelete(null)
@@ -158,7 +165,10 @@ export function EditorInvite({
                                     className="h-6 w-6 text-muted-foreground hover:text-destructive"
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        setEditorToDelete(editor.email)
+                                        setEditorToDelete({
+                                            email: editor.email,
+                                            userId: editor.userId
+                                        })
                                     }}
                                 >
                                     <Trash2 className="size-3.5 hover:text-destructive hover:size-6" />

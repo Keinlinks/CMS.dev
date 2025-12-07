@@ -35,6 +35,7 @@ export async function createOrganizationAction(
 
     const apiClient = createApiClient(token)
 
+    // 1. Crear la organización
     const response = await apiClient.organizations.organizationsControllerCreate(
       {
         name: data.name,
@@ -46,9 +47,58 @@ export async function createOrganizationAction(
 
     const organization = response.data as unknown as Organization
 
-    // Revalidate the organizations list
+    console.log('✅ Organización creada:', organization)
+
+    // 2. Obtener las organizaciones actualizadas del usuario
+    const userOrgsResponse = await apiClient.organizations.organizationsControllerFindUserOrganizations(
+      { format: 'json' }
+    )
+
+    // La respuesta del backend es un array de UserOrganization (con organization anidado)
+    const userOrganizations = userOrgsResponse.data as unknown as any[]
+
+    console.log('📋 Organizaciones del usuario actualizadas:', userOrganizations)
+
+    // 3. Actualizar cookies con las organizaciones
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
+      path: '/',
+    }
+
+    // Guardar organizaciones completas en cookies (mismo formato que en login)
+    cookieStore.set(
+      'user_organizations',
+      JSON.stringify(userOrganizations || []),
+      cookieOptions
+    )
+
+    // Establecer la organización recién creada como actual
+    // Si userOrganizations tiene elementos, usar el primero (que debería ser el recién creado)
+    if (userOrganizations && userOrganizations.length > 0) {
+      const currentOrg = userOrganizations[0].organization || organization
+      cookieStore.set(
+        'current_organization',
+        JSON.stringify(currentOrg),
+        cookieOptions
+      )
+      console.log('🏢 Organización actual establecida:', currentOrg.name)
+    } else {
+      // Fallback: usar la organización que acabamos de crear
+      cookieStore.set(
+        'current_organization',
+        JSON.stringify(organization),
+        cookieOptions
+      )
+    }
+
+    console.log('🍪 Cookies actualizadas con nueva organización')
+
+    // 4. Revalidar rutas
     revalidatePath('/dashboard/organizations')
     revalidatePath('/dashboard')
+    revalidatePath('/', 'layout')
 
     return {
       success: true,
@@ -79,47 +129,5 @@ export async function createOrganizationAction(
   }
 }
 
-export async function getUserOrganizationsAction(): Promise<ActionResponse<Organization[]>> {
-  try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('auth_token')?.value
-
-    if (!token) {
-      // Return empty array if not authenticated (user can still see "Add" option)
-      return {
-        success: true,
-        data: [],
-      }
-    }
-
-    const apiClient = createApiClient(token)
-
-    const response = await apiClient.organizations.organizationsControllerFindUserOrganizations({
-      format: 'json',
-    })
-
-    const organizations = response.data as unknown as Organization[]
-
-    return {
-      success: true,
-      data: organizations || [],
-    }
-  } catch (error: any) {
-    console.error('Get organizations error:', error)
-
-    // If unauthorized, return empty array (don't redirect, allow user to see sidebar)
-    if (error?.error?.statusCode === 401 || error?.status === 401) {
-      return {
-        success: true,
-        data: [],
-      }
-    }
-
-    // For other errors, return empty array gracefully
-    return {
-      success: true,
-      data: [],
-    }
-  }
-}
-
+// arreglar el erro de in organizacion, no muestra el boton de organizacion
+// ver el error, de volver sin credenciales al dashboar, controlar desde la pagina dashboard,

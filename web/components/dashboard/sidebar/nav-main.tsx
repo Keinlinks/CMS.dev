@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, SquareTerminal, Settings2, type LucideIcon } from "lucide-react"
 
 import {
   Collapsible,
@@ -18,13 +18,19 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
+// Mapeo de nombres de iconos a componentes
+const iconMap: Record<string, LucideIcon> = {
+  SquareTerminal,
+  Settings2,
+}
+
 export function NavMain({
   items,
 }: {
   items: {
     title: string
     url: string
-    icon?: LucideIcon
+    icon?: string | LucideIcon
     isActive?: boolean
     items?: {
       title: string
@@ -37,43 +43,50 @@ export function NavMain({
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
+        {items.map((item) => {
+          // Convertir string a componente de icono
+          const IconComponent = typeof item.icon === 'string'
+            ? iconMap[item.icon]
+            : item.icon
 
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={subItem.url} className="flex justify-between items-center">
-                          <span>{subItem.title}</span>
-                          {subItem.badge && (
-                            <span className="ml-auto text-xs font-medium text-muted-foreground px-2 py-0.5 rounded-full bg-muted">
-                              {subItem.badge}
-                            </span>
-                          )}
-                        </a>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
+          return (
+            <Collapsible
+              key={item.title}
+              asChild
+              defaultOpen={item.isActive}
+              className="group/collapsible"
+            >
+
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton tooltip={item.title}>
+                    {IconComponent && <IconComponent />}
+                    <span>{item.title}</span>
+                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.items?.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild>
+                          <a href={subItem.url} className="flex justify-between items-center">
+                            <span>{subItem.title}</span>
+                            {subItem.badge && (
+                              <span className="ml-auto text-xs font-medium text-muted-foreground px-2 py-0.5 rounded-full bg-muted">
+                                {subItem.badge}
+                              </span>
+                            )}
+                          </a>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          )
+        })}
       </SidebarMenu>
     </SidebarGroup>
   )

@@ -1,11 +1,9 @@
-'use client'
-
-import { getTestimonialStats } from '@/lib/mockDashboardTestimonials'
+import { getTestimonialStatsAction } from '@/lib/actions/sidebar'
 import Link from 'next/link'
 import { TrendingUp, Clock, CheckCircle2, Eye, XCircle } from 'lucide-react'
 
-export default function DashboardPage() {
-  const stats = getTestimonialStats()
+export default async function DashboardPage() {
+  const stats = await getTestimonialStatsAction()
 
   const statCards = [
     {
