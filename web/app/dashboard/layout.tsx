@@ -11,8 +11,18 @@ import { DynamicBreadcrumb } from "@/components/dashboard/dynamicBreadcrumb";
 import { getUserOrganizations } from "@/lib/actions/sidebar";
 import { getUserRoleInCurrentOrg } from "@/lib/actions/user-role";
 import { UserRoleProvider } from "@/components/providers/user-role-provider";
+import { getSession } from "@/lib/actions/session";
+import { redirect } from "next/navigation";
 
 export default async function LayoutPage({ children }: { children: React.ReactNode }) {
+  // Validar sesión antes de renderizar el dashboard
+  const session = await getSession()
+
+  // Si no hay sesión válida, redirigir a login
+  if (!session.isValid || !session.user) {
+    redirect('/login')
+  }
+
   // Fetch organizations for the sidebar
   const organizations = await getUserOrganizations()
 

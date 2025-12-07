@@ -243,8 +243,9 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete('user_organizations')
   cookieStore.delete('current_organization')
 
-  // Revalida para limpiar caché de sesión
+  // Revalida para limpiar caché de sesión y dashboard
   revalidatePath('/', 'layout')
+  revalidatePath('/dashboard', 'layout')
 
   redirect('/login')
 }

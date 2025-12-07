@@ -57,6 +57,13 @@ export function proxy(request: NextRequest) {
         if (!userOrganizations || userOrganizations.length === 0) {
             return NextResponse.redirect(new URL('/create-organization', request.url))
         }
+
+        // Agregar headers de no-cache para páginas protegidas
+        const response = NextResponse.next()
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+        response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
+        return response
     }
 
     return NextResponse.next()
