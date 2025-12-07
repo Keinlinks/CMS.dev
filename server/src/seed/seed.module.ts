@@ -98,10 +98,10 @@ export class SeedModule implements OnModuleInit {
                 let categoryMany = await this.categoryRepo.findOne({ where: { name: "Category 1" } })
                 await this.createTestimonials(10, orgMany, categoryMany?.id || '');
                 await this.userOrgRepo.save({ organizationId: orgMany.id, userId: user.id, role: OrganizationRole.EDITOR });
-                let org = await this.orgRepo.findOne({ where: { name: `CMS Org ${i + 1}` } });
+                let org = await this.orgRepo.findOne({ where: { name: `CMS Many-i Org ${i + 1}` } });
                 if (org) continue;
                 if (!org) {
-                    org = await this.orgRepo.save({ name: `CMS Org ${i + 1}`, description: `organization of CMS ${i + 1}` });
+                    org = await this.orgRepo.save({ name: `CMS Many-i Org ${i + 1}`, description: `organization of CMS ${i + 1}` });
                 }
                 let category = await this.categoryRepo.findOne({ where: { name: "Category 1" } })
                 await this.createTestimonials(10, org, category?.id || '');

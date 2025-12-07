@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { NotificationsService } from "src/notifications/services/notifications.service";
 import { OrganizationsService } from "src/organizations/services/organizations.service";
 import { UserOrganizationService } from "src/user_organization/services/userOrganization.service";
@@ -12,6 +12,7 @@ import { OrganizationRole } from "src/common/types/userRole";
 
 @Injectable()
 export class InviteUserToOrganizationService {
+    private readonly logger = new Logger(InviteUserToOrganizationService.name);
     constructor(
         private readonly organizationsService: OrganizationsService,
         private readonly userOrganizationService: UserOrganizationService,
@@ -22,6 +23,7 @@ export class InviteUserToOrganizationService {
     ) { }
 
     async execute(input: InviteUserToOrganizationDto, userId:string) {
+        this.logger.log(`User ${userId} is inviting ${input.email} to organization ${input.organizationId}`);
         // Verify organization exists
         const organization = await this.organizationsService.findOneUnsafe(input.organizationId);
         if (!organization) throw new NotFoundException('Organization not found');
@@ -56,6 +58,8 @@ export class InviteUserToOrganizationService {
             user_id: invitedUser.id,
             token_hashed: token
         });
+        this.logger.log(`Invitation sent to ${input.email} to join organization ${input.organizationId}`);
+        this.logger.debug(`Invitation details: ${JSON.stringify(notification)}`);
         return this.notificationService.sendNotificationWithTemplate(notification);
     }
 }
