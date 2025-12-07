@@ -7,10 +7,10 @@ import { Check, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
 @Entity('user_organization')
 export class UserOrganization extends BaseEntity {
-    @Column()
+    @Column({nullable: false})
     userId: string;
 
-    @Column()
+    @Column({nullable: false})
     organizationId: string;
 
     // Sqlite does not support enum type, so using varchar with check instead (testing and local environment friendly)
