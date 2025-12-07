@@ -18,4 +18,12 @@ export class UserOrganizationService{
         const toSave = this.userOrganizationRepository.create(userOrganization);
         return this.userOrganizationRepository.save(toSave);
     }
+
+    async delete(userId: string, organizationId: string): Promise<boolean> {
+        await this.userOrganizationRepository.delete({
+            userId,
+            organizationId
+        });
+        return true;
+    }
 }

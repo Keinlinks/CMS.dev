@@ -11,7 +11,7 @@ import { EncoderService } from "src/common/services/encoder.service";
 import { OrganizationRole } from "src/common/types/userRole";
 
 @Injectable()
-export class inviteUserToOrganizationService {
+export class InviteUserToOrganizationService {
     constructor(
         private readonly organizationsService: OrganizationsService,
         private readonly userOrganizationService: UserOrganizationService,
