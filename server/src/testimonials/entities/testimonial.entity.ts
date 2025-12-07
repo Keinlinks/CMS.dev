@@ -21,7 +21,7 @@ export class Testimonial extends BaseEntity {
   client_email: string;
 
   @Column({ type: 'varchar', nullable: false })
-  organitation_id: string;
+  organization_id: string;
 
   @Column({ type: 'uuid' })
   category_id: string;

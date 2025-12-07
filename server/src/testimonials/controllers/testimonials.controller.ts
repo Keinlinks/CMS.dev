@@ -19,7 +19,6 @@ import { CreateTestimonialDto } from '../dto/create-testimonial.dto';
 import { UpdateTestimonialDto } from '../dto/update-testimonial.dto';
 import { TestimonialsService } from '../services/testimonials.service'; 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateTestimonialsService } from '../services/createTestimonial.service';
 import { Public } from 'src/common/guards/roles.decorator';
 import { MediaType } from '../enums/mediaType';
 import { TestimonialsParamsDto } from '../dto/testimonials.params.dto';
@@ -28,16 +27,17 @@ import { Testimonial } from '../entities/testimonial.entity';
 import { TestimonialResponseDto } from '../dto/testimonialResponse.dto';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { InviteTestimonialDto } from '../dto/invite-testimonial.dto';
-import { TestimonialsInvitationService } from '../services/testimonialsInvitation.service';
 import { WallTestimonialsParamsDto } from '../dto/wallTestimonials.params.dto';
 import { ChangeStatusDto } from '../dto/change-status.dto';
+import { CreateTestimonialsUseCase } from '../useCases/createTestimonial.useCase';
+import { InviteTestimonialUseCase } from '../useCases/inviteTestimonial.useCase';
 
 @Controller('testimonials')
 export class TestimonialsController {
   constructor(
     private readonly testimonialsService: TestimonialsService,
-    private readonly createTestimonialService:CreateTestimonialsService,
-    private readonly testimonialsInvitationService:TestimonialsInvitationService
+    private readonly createTestimonialUseCase:CreateTestimonialsUseCase,
+    private readonly InviteTestimonialUseCase:InviteTestimonialUseCase
   ) {
   }
   
@@ -56,7 +56,7 @@ export class TestimonialsController {
         errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       }),) file?: Express.Multer.File) {
     if (createTestimonialDto.media_type == MediaType.TEXT)
-      return this.createTestimonialService.createTestimonial(createTestimonialDto);
+      return this.createTestimonialUseCase.createTestimonial(createTestimonialDto);
 
     if (!file)
       throw new UnprocessableEntityException('Media file is required for the selected media type');
@@ -70,7 +70,7 @@ export class TestimonialsController {
     if (!mime.startsWith(type))
       throw new UnprocessableEntityException('Media type does not match the uploaded file');
 
-    return this.createTestimonialService.createTestimonialWithMedia(createTestimonialDto, file, file.originalname);
+    return this.createTestimonialUseCase.createTestimonialWithMedia(createTestimonialDto, file, file.originalname);
   }
 
   @Get()
@@ -108,7 +108,7 @@ export class TestimonialsController {
   @ApiBody({ type: InviteTestimonialDto })
   @ApiOperation({ summary: 'Invite an end customer (or many) to submit a testimonial.' })
   inviteTestimonials(@Body() body: InviteTestimonialDto, @GetUser() user) {
-    return this.testimonialsInvitationService.inviteTestimonial(body.emails,body.organizationId,user.id);
+    return this.InviteTestimonialUseCase.execute(body.emails,body.organizationId,user.id);
   }
 
   @Get(':id')

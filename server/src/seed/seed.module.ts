@@ -118,14 +118,14 @@ export class SeedModule implements OnModuleInit {
                 category_id: categoryId,
                 content: `This is testimonial content for organization ${organization.name}`,
                 media_type: MediaType.TEXT,
-                organitation_id: organization.id,
+                organization_id: organization.id,
                 title: `Testimonial Title ${userNumber}`,
                 stars_rating: Math.floor(Math.random() * 5) + 1,
                 client_email: `client_${userNumber}@example.com`,
                 client_name: `Client Name ${userNumber}`,
             }
             const exists = await this.testimonialRepo.findOne({
-                where: { title: `Testimonial Title ${userNumber}`, organitation_id: organization.id }
+                where: { title: `Testimonial Title ${userNumber}`, organization_id: organization.id }
             });
 
             if (!exists) await this.testimonialRepo.save({ ...testimonial, status: this.randomStatus() });

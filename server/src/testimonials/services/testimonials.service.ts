@@ -18,6 +18,11 @@ export class TestimonialsService {
     private readonly userOrganization: UserOrganizationService
   ) { }
 
+  async create(createTestimonial: Partial<Testimonial>): Promise<Testimonial> {
+    const testimonial = this.testimonialsRepository.create(createTestimonial);
+    return this.testimonialsRepository.save(testimonial);
+  }
+
   async findAll(filters: TestimonialsParamsDto, userId: string): Promise<Testimonial[]> {
     let org = await this.userOrganization.findUserOrganization(userId, filters.organitationId);
     if (!org) {
@@ -66,7 +71,7 @@ export class TestimonialsService {
         createdAt: sort,
       },
       where: {
-        organitation_id: params.organitationId,
+        organization_id: params.organitationId,
         status: 'published',
       }
     });
@@ -81,9 +86,9 @@ export class TestimonialsService {
     if (!testimonial) {
       throw new NotFoundException(`Testimonial with ID ${id} not found`);
     }
-    let org = await this.userOrganization.findUserOrganization(userId, testimonial.organitation_id);
+    let org = await this.userOrganization.findUserOrganization(userId, testimonial.organization_id);
     if (!org) {
-      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organitation_id}`);
+      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organization_id}`);
     }
     return testimonial;
   }
@@ -91,7 +96,7 @@ export class TestimonialsService {
   async findByOrganitation(organitationId: string, param: TestimonialsParamsDto): Promise<Testimonial[]> {
     const { status } = param
     return this.testimonialsRepository.find({
-      where: status ? { status, organitation_id: organitationId } : { organitation_id: organitationId },
+      where: status ? { status, organization_id: organitationId } : { organization_id: organitationId },
       relations: ['category', 'tags'],
     });
   }
@@ -110,9 +115,9 @@ export class TestimonialsService {
     if (!testimonial) {
       throw new NotFoundException(`Testimonial with ID ${testimonialId} not found`);
     }
-    let userOrg = await this.userOrganization.findUserOrganization(userId, testimonial.organitation_id);
+    let userOrg = await this.userOrganization.findUserOrganization(userId, testimonial.organization_id);
     if (!userOrg) {
-      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organitation_id}`);
+      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organization_id}`);
     }
     //if the status is the same, return the testimonial
     if (testimonial.status === status) {
@@ -120,7 +125,7 @@ export class TestimonialsService {
     }
     //only administrators can publish testimonials
     if (status == TestimonialStatus.PUBLISHED && userOrg.role !== OrganizationRole.ADMINISTRATOR)
-      throw new UnauthorizedException(`Only administrators can publish testimonials for the organization ${testimonial.organitation_id}`);
+      throw new UnauthorizedException(`Only administrators can publish testimonials for the organization ${testimonial.organization_id}`);
 
     testimonial.status = status;
     return this.testimonialsRepository.save(testimonial);
@@ -138,9 +143,9 @@ export class TestimonialsService {
     if (!testimonial) {
       throw new NotFoundException(`Testimonial with ID ${testimonialId} not found`);
     }
-    let org = await this.userOrganization.findUserOrganization(userId, testimonial.organitation_id);
+    let org = await this.userOrganization.findUserOrganization(userId, testimonial.organization_id);
     if (!org) {
-      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organitation_id}`);
+      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organization_id}`);
     }
     Object.assign(testimonial, updateTestimonialDto);
     return this.testimonialsRepository.save(testimonial);
@@ -153,9 +158,9 @@ export class TestimonialsService {
     if (!testimonial) {
       throw new NotFoundException(`Testimonial with ID ${testimonialId} not found`);
     }
-    let org = await this.userOrganization.findUserOrganization(userId, testimonial.organitation_id);
+    let org = await this.userOrganization.findUserOrganization(userId, testimonial.organization_id);
     if (!org) {
-      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organitation_id}`);
+      throw new UnauthorizedException(`User is not part of the organization ${testimonial.organization_id}`);
     }
     await this.testimonialsRepository.remove(testimonial);
   }

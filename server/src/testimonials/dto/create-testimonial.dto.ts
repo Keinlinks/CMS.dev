@@ -28,7 +28,7 @@ export class CreateTestimonialDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Organization ID is required' })
-  organitation_id: string;
+  organization_id: string;
 
   @ApiProperty({
     description: 'Category ID associated with the testimonial. Must be a valid UUID v4.',
