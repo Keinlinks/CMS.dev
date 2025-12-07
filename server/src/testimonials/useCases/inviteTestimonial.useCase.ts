@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TestimonialInvitation } from "../entities/testimonialInvitation.entity";
 import { Repository } from "typeorm";
@@ -21,6 +21,8 @@ export class InviteTestimonialUseCase {
     ) { }
 
     async execute(emails: string[],organizationId:string,userId:string): Promise<{ message: string }> {
+        if (emails.length < 1)
+            throw new BadRequestException("Emails can't be empty")
         let userOrg = await this.userOrganization.findUserOrganization(userId,organizationId);
         if(!userOrg)
             throw new UnauthorizedException("Unauthorized to invite testimonials for this organization");
