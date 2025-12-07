@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException,
@@ -25,6 +26,7 @@ import { EmailVerificationService } from './emailVerification.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -35,13 +37,17 @@ export class AuthService {
     private emailVerificationService: EmailVerificationService,
   ) { }
   async login(username: string, password: string): Promise<RequestUser> {
+    this.logger.log(`Login intent for user ${username}`);
+
     const user = await this.userService.findOneWithPassword(username);
 
     if (!user) {
+      this.logger.warn(`User ${username} not found`);
       throw new UnauthorizedException('User does not exist');
     }
 
     if (!bcrypt.compareSync(password, user.password)) {
+      this.logger.warn(`Invalid password for user ${username}`);
       throw new UnauthorizedException('Invalid password');
     }
 
@@ -58,7 +64,7 @@ export class AuthService {
 
     // Remove password from response for security
     const { password: _, ...userWithoutPassword } = user;
-
+    this.logger.log(`User ${username} logged in successfully`);
     return {
       ...userWithoutPassword,
       token: payload,
@@ -67,6 +73,7 @@ export class AuthService {
   }
 
   async register(data: RegisterDto): Promise<RegisterResponseDto> {
+    this.logger.log(`Registering new user with email ${data.email}`);
     const normalizedEmail = data.email.trim().toLowerCase();
 
     try {
@@ -96,7 +103,7 @@ export class AuthService {
         console.error('Error sending confirmation email:', error);
       }
 
-
+      this.logger.log(`User registered successfully with email ${data.email}`);
       return {
         message: 'User registered successfully',
         success: true,
@@ -104,14 +111,17 @@ export class AuthService {
 
     } catch (error) {
       if (error.code === 'SQLITE_CONSTRAINT' || error.code === '23505') {
+        this.logger.warn(`Email or username already exists: ${data.email} / ${data.username}`);
         throw new ConflictException('Email or username already exists');
       }
-
+      this.logger.error(`Error creating user: ${error.message}`, error.stack);
       throw new ServiceUnavailableException('Error creating user');
     }
   }
 
   async changePassword(changePasswordDto: ChangePasswordDto, username: string): Promise<void> {
+    this.logger.log(`Change password request for user ${username}`);
+
     const { newPassword, oldPassword } = changePasswordDto
     const user = await this.userService.findOneWithPassword(username)
 
@@ -125,10 +135,12 @@ export class AuthService {
       throw new BadRequestException('The old password does not match')
 
     user.password = await this.encoderService.encodePassword(newPassword);
+
     await this.userRepository.save(user)
   }
 
   async confirmEmail(token: string) {
+    this.logger.log(`Confirm email request`);
     const emailVerification = await this.emailVerificationService.findByToken(token);
     if (!emailVerification)
       throw new BadRequestException('Invalid token')
@@ -147,6 +159,7 @@ export class AuthService {
     user.email_confirmed = true;
     await this.userService.update(user.id, user);
     await this.emailVerificationService.update(emailVerification);
+    this.logger.log(`Email confirmed successfully for ${emailVerification.email}`);
     return true
   }
 }
