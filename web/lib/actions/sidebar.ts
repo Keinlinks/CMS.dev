@@ -49,7 +49,7 @@ export async function getUserOrganizations() {
         // 1. Después de login: [{ id, userId, organizationId, role, organization: {...} }]
         // 2. Después de crear org: [{ id, name, description, ... }] (organización directa)
 
-        return userOrganizations
+        const organizations = userOrganizations
             .filter((item: any) => {
                 // Filtrar elementos válidos
                 return item.organization || item.id // Tiene organization anidada O es una organización directa
