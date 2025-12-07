@@ -1,18 +1,15 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InvitationsService } from "./invitations.service";
-import { EncoderService } from "src/common/services/encoder.service";
-import { OrganizationRole } from "src/common/types/userRole";
 import { UserOrganizationService } from "src/user_organization/services/userOrganization.service";
 import { OrganizationsService } from "src/organizations/services/organizations.service";
 
 @Injectable()
 export class AcceptInvitationService {
-
+  private readonly logger = new Logger(AcceptInvitationService.name);
   constructor(
     private readonly organizationsService: OrganizationsService,
     private readonly userOrganizationService: UserOrganizationService,
     private readonly invitationsService: InvitationsService,
-    private readonly encoderService: EncoderService,
   ) { }
 
   async execute(token: string) {
@@ -28,11 +25,11 @@ export class AcceptInvitationService {
     const userOrganization = await this.userOrganizationService.create({
       userId: invitation.user_id,
       organizationId: invitation.organizationId,
-      role: invitation.role_asigned as OrganizationRole,
+      role: invitation.role_asigned,
     });
     invitation.used_at = new Date();
     await this.invitationsService.updateInvitation(invitation);
-
+    this.logger.log(`User ${invitation.user_id} accepted invitation to join organization ${invitation.organizationId}`);
     return userOrganization;
   }
 }

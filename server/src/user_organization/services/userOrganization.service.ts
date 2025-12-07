@@ -11,7 +11,8 @@ export class UserOrganizationService{
             where: {
                 userId,
                 organizationId
-            }
+            },
+            select: ['userId', 'organizationId', 'role']
         });
     }
     async create(userOrganization: Partial<UserOrganization>): Promise<UserOrganization> {

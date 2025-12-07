@@ -1,11 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const logger = new Logger('MAIN')
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule,{
+    logger: new ConsoleLogger({
+      prefix: 'CMS_APP',
+      timestamp: true,
+      logLevels: ['log', 'error']
+    }),
+  });
 
   // Enable global validation
   app.useGlobalPipes(

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Testimonial } from '../entities/testimonial.entity';
@@ -9,6 +9,7 @@ import { OrganizationsService } from 'src/organizations/services/organizations.s
 
 @Injectable()
 export class CreateTestimonialsService {
+  private readonly logger = new Logger(CreateTestimonialsService.name);
   constructor(
     @InjectRepository(Testimonial)
     private testimonialsRepository: Repository<Testimonial>,
@@ -43,8 +44,14 @@ export class CreateTestimonialsService {
         objectFilename,
       );
       testimonial.media_url = publicId;
+      this.logger.log(`Creating testimonial for organization ${createTestimonialDto.organitation_id} with media`);
+      this.logger.debug(`Testimonial details: ${JSON.stringify(testimonial)}`);
       return this.testimonialsRepository.save(testimonial);
     } catch (error) {
+      this.logger.error(
+        `Failed to upload media for testimonial: ${error.message}`,
+        error.stack,
+      );
       throw new InternalServerErrorException(
         `Failed to upload media: ${error.message}`,
       );
@@ -62,7 +69,8 @@ export class CreateTestimonialsService {
     const testimonial =
       this.testimonialsRepository.create(createTestimonialDto);
     testimonial.status = "pending"
-
+    this.logger.log(`Creating testimonial for organization ${createTestimonialDto.organitation_id} without media`);
+    this.logger.debug(`Testimonial details: ${JSON.stringify(testimonial)}`);
     return this.testimonialsRepository.save(testimonial);
   }
 
