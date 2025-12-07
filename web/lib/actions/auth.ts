@@ -154,10 +154,11 @@ export async function loginAction(
     // Revalida para limpiar cualquier dato de sesión cacheado
     revalidatePath('/', 'layout')
 
-    // Determina la redirección - siempre redirige al dashboard principal
-    const redirectPath = '/dashboard'
+    // Determina la redirección basado en si tiene organizaciones
+    const hasOrganizations = userData.userOrganizations && userData.userOrganizations.length > 0
+    const redirectPath = hasOrganizations ? '/dashboard' : '/create-organization'
 
-    console.log('🎯 Redirigiendo a:', redirectPath)
+    console.log('🎯 Redirigiendo a:', redirectPath, { hasOrganizations, orgCount: userData.userOrganizations?.length || 0 })
 
     return {
       success: true,
