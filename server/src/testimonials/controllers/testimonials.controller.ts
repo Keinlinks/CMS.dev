@@ -108,7 +108,7 @@ export class TestimonialsController {
   @ApiBody({ type: InviteTestimonialDto })
   @ApiOperation({ summary: 'Invite an end customer (or many) to submit a testimonial.' })
   inviteTestimonials(@Body() body: InviteTestimonialDto, @GetUser() user) {
-    return this.InviteTestimonialUseCase.execute(body.emails,body.organizationId,user.id);
+    return this.InviteTestimonialUseCase.execute(body,user.id);
   }
 
   @Get(':id')

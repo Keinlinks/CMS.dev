@@ -11,6 +11,9 @@ export class TestimonialInvitation extends BaseEntity {
     @Column({ type: 'varchar', nullable: false })
     token: string;
 
+    @Column()
+    categoryId:string;
+
     @CreateDateColumn({nullable: false})
     expires_at: Date;
 

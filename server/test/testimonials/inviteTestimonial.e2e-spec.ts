@@ -14,7 +14,6 @@ import { MediaStorageModule } from "src/media-storage/mediaStorage.module";
 import { MediaStorageProvider } from "src/media-storage/ports/mediaStorageProvider";
 import { EmailProviderFakeImpl } from "src/notifications/adapters/emailProviderFakeImpl";
 import { EmailProvider } from "src/notifications/ports/emailProvider";
-import { Organization } from "src/organizations/entities/organization.entity";
 import { SeedModule } from "src/seed/seed.module";
 import { TagsModule } from "src/tags/tags.module";
 import { InviteTestimonialDto } from "src/testimonials/dto/invite-testimonial.dto";
@@ -109,7 +108,8 @@ describe('Testimonials invite', () => {
 
         let inviteTestimonialDto: InviteTestimonialDto = {
             emails: ['example@example.com', 'example2@example.com'],
-            organizationId: organizationId
+            organizationId: organizationId,
+            categoryId
         }
         //act
         const res = await request
@@ -130,7 +130,8 @@ describe('Testimonials invite', () => {
 
         let inviteTestimonialDto: InviteTestimonialDto = {
             emails: ['example@example.com'],
-            organizationId: organizationId
+            organizationId: organizationId,
+            categoryId
         }
         //act
         const res = await request
@@ -152,7 +153,8 @@ describe('Testimonials invite', () => {
 
         let inviteTestimonialDto: InviteTestimonialDto = {
             emails: [],
-            organizationId: organizationId
+            organizationId: organizationId,
+            categoryId
         }
         //act
         const res = await request
@@ -173,7 +175,8 @@ describe('Testimonials invite', () => {
 
         let inviteTestimonialDto: InviteTestimonialDto = {
             emails: ['example@example.com', 'example2@example.com'],
-            organizationId: "org_123123"
+            organizationId: "org_123123",
+            categoryId
         }
         //act
         const res = await request
@@ -183,5 +186,26 @@ describe('Testimonials invite', () => {
             .set('Authorization', `Bearer ${token}`);
         //assert
         expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
+    });
+    it('should throw a error, category does not exist', async () => {
+        //arrange
+        if (!organizationId)
+            throw Error("Organization id empty");
+        if (!categoryId)
+            throw Error("Category id empty");
+
+        let inviteTestimonialDto: InviteTestimonialDto = {
+            emails: ['example@example.com', 'example2@example.com'],
+            organizationId: organizationId,
+            categoryId: "category_123"
+        }
+        //act
+        const res = await request
+            .default(app.getHttpServer())
+            .post('/testimonials/invite')
+            .send(inviteTestimonialDto)
+            .set('Authorization', `Bearer ${token}`);
+        //assert
+        expect(res.status).toBe(HttpStatus.BAD_REQUEST);
     });
 });

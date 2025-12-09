@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from '../dto/create-category.dto';
@@ -25,7 +25,6 @@ export class CategoriesService {
     const offset = (page - 1) * itemsPerPage;
     
     return this.categoriesRepository.find({
-      relations: ['testimonials'],
       skip: offset,
       take: limit,
       order:{
@@ -34,25 +33,27 @@ export class CategoriesService {
     });
   }
 
-  async findOne(id: string): Promise<Category> {
+  async findOne(id: string): Promise<Category | null> {
     const category = await this.categoriesRepository.findOne({
       where: { id },
       relations: ['testimonials'],
     });
-    if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
-    }
     return category;
   }
 
-  async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<Category | null> {
     const category = await this.findOne(id);
+    if(!category)
+      return category;
     Object.assign(category, updateCategoryDto);
     return this.categoriesRepository.save(category);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<boolean> {
     const category = await this.findOne(id);
+    if(!category)
+      return false;
     await this.categoriesRepository.remove(category);
+    return true;
   }
 }

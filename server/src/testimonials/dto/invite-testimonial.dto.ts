@@ -12,6 +12,13 @@ export class InviteTestimonialDto {
   emails: string[];
 
   @ApiProperty({
+    type: [String],
+    description: 'Category ID associated with testimonials.',
+  })
+  @IsString()
+  categoryId: string;
+
+  @ApiProperty({
     example: 'c2ca55c2-d033-4320-a7b4-fb096b0db9e2',
     description: 'Organization ID that is sending the testimonial request.',
   })
