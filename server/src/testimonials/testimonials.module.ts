@@ -14,6 +14,9 @@ import { TestimonialInvitation } from './entities/testimonialInvitation.entity';
 import { CreateTestimonialsUseCase } from './useCases/createTestimonial.useCase';
 import { InviteTestimonialUseCase } from './useCases/inviteTestimonial.useCase';
 import { TestimonialInvitationService } from './services/testimonialInvitation.service';
+import { FindOneTestimonialUseCase } from './useCases/findOneTestimonial.useCase';
+import { ChangeStatusTestimonialUseCase } from './useCases/changeStatusTestimonial.useCase';
+import { RemoveTestimonialUseCase } from './useCases/removeTestimonial.useCase';
 
 @Module({
   imports: [
@@ -29,7 +32,13 @@ import { TestimonialInvitationService } from './services/testimonialInvitation.s
     CommonModule
   ],
   controllers: [TestimonialsController],
-  providers: [TestimonialsService,TestimonialInvitationService,CreateTestimonialsUseCase, InviteTestimonialUseCase],
+  providers: [TestimonialsService,
+    TestimonialInvitationService,CreateTestimonialsUseCase, 
+    InviteTestimonialUseCase,
+    FindOneTestimonialUseCase,
+    ChangeStatusTestimonialUseCase,
+    RemoveTestimonialUseCase,
+  ],
   exports: [TestimonialsService],
 })
 export class TestimonialsModule {}

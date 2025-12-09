@@ -31,13 +31,19 @@ import { WallTestimonialsParamsDto } from '../dto/wallTestimonials.params.dto';
 import { ChangeStatusDto } from '../dto/change-status.dto';
 import { CreateTestimonialsUseCase } from '../useCases/createTestimonial.useCase';
 import { InviteTestimonialUseCase } from '../useCases/inviteTestimonial.useCase';
+import { FindOneTestimonialUseCase } from '../useCases/findOneTestimonial.useCase';
+import { ChangeStatusTestimonialUseCase } from '../useCases/changeStatusTestimonial.useCase';
+import { RemoveTestimonialUseCase } from '../useCases/removeTestimonial.useCase';
 
 @Controller('testimonials')
 export class TestimonialsController {
   constructor(
     private readonly testimonialsService: TestimonialsService,
     private readonly createTestimonialUseCase:CreateTestimonialsUseCase,
-    private readonly InviteTestimonialUseCase:InviteTestimonialUseCase
+    private readonly inviteTestimonialUseCase:InviteTestimonialUseCase,
+    private readonly findOneTestimonialUseCase:FindOneTestimonialUseCase,
+    private readonly changeStatusTestimonialUseCase:ChangeStatusTestimonialUseCase,
+    private readonly removeTestimonialUseCase:RemoveTestimonialUseCase
   ) {
   }
   
@@ -108,36 +114,29 @@ export class TestimonialsController {
   @ApiBody({ type: InviteTestimonialDto })
   @ApiOperation({ summary: 'Invite an end customer (or many) to submit a testimonial.' })
   inviteTestimonials(@Body() body: InviteTestimonialDto, @GetUser() user) {
-    return this.InviteTestimonialUseCase.execute(body,user.id);
+    return this.inviteTestimonialUseCase.execute(body,user.id);
   }
 
   @Get(':id')
   @ApiBearerAuth()
   findOne(@Param('id', ParseUUIDPipe) id: string,@GetUser() user) {
-    return this.testimonialsService.findOne(id,user.id);
+    return this.findOneTestimonialUseCase.execute(id,user.id);
   }
 
-  @Patch(':id')
-  @ApiBearerAuth()
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateTestimonialDto: UpdateTestimonialDto,
-    @GetUser() user
-  ) {
-    return this.testimonialsService.update(id, user.id,updateTestimonialDto);
-  }
   @Post('change-status')
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change status for a testimonial' })
   changeStatus(
     @Body() body:ChangeStatusDto,
     @GetUser() user
   ) {
-    return this.testimonialsService.changeStatus(body.testimonialId, user.id, body.status);
+    return this.changeStatusTestimonialUseCase.execute(body.testimonialId, user.id, body.status);
   }
 
   @Delete(':id')
   @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseUUIDPipe) id: string,@GetUser() user) {
-    return this.testimonialsService.remove(id,user.id);
+    return this.removeTestimonialUseCase.execute(id,user.id);
   }
 }
