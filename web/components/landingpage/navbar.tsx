@@ -36,26 +36,16 @@ export default function Navbar() {
 
         {/* 🟥 Botones */}
         <div className="absolute right-6 flex items-center gap-4">
-          <Link
-            href="/enviodetestimonios"
-            className="font-medium text-[#0F111A] dark:text-[#FFFFFF] hover:text-[#66F9C4] transition"
-          >
-            Enviar testimonio
-          </Link>
+
 
           <Link
             href="/login"
-            className="font-medium text-[#0F111A] dark:text-[#FFFFFF] hover:text-[#66F9C4] transition"
+            className="px-5 py-2 bg-[#66F9C4] text-[#0F111A] font-medium rounded-lg hover:bg-[#55dfad] transition"
           >
             {text.login}
           </Link>
 
-          <Link
-            href="/register"
-            className="px-5 py-2 bg-[#66F9C4] text-[#0F111A] font-medium rounded-lg hover:bg-[#55dfad] transition"
-          >
-            {text.signup}
-          </Link>
+
           <LanguageToggle />
           <ThemeToggle />
         </div>
