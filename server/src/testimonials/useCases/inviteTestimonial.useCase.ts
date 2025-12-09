@@ -7,6 +7,8 @@ import { OrganizationRole } from "src/common/types/userRole";
 import { TestimonialInvitationService } from "../services/testimonialInvitation.service";
 import { InviteTestimonialDto } from "../dto/invite-testimonial.dto";
 import { CategoriesService } from "src/categories/services/categories.service";
+import { InvitationTestimonialTemplateDto } from "src/notifications/dto/invitationTestimonial.dto";
+import { OrganizationsService } from "src/organizations/services/organizations.service";
 
 @Injectable()
 export class InviteTestimonialUseCase {
@@ -16,10 +18,11 @@ export class InviteTestimonialUseCase {
         private readonly notificationService: NotificationsService,
         private readonly encoderService: EncoderService,
         private readonly userOrganization:UserOrganizationService,
+        private readonly organizationService:OrganizationsService,
         private readonly categoriesService:CategoriesService
     ) { }
 
-    async execute(input:InviteTestimonialDto,userId:string): Promise<{ message: string }> {
+    async execute(input:InviteTestimonialDto,userId:string,username:string): Promise<{ message: string }> {
         if (input.emails.length < 1)
             throw new BadRequestException("Emails can't be empty")
         let userOrg = await this.userOrganization.findUserOrganization(userId,input.organizationId);
@@ -30,13 +33,22 @@ export class InviteTestimonialUseCase {
             throw new BadRequestException("Category does not exist");
         if(userOrg.role !== OrganizationRole.ADMINISTRATOR)
             throw new UnauthorizedException("Only administrators can invite testimonials for this organization");
-        
+        let organization = await this.organizationService.findOneUnsafe(input.organizationId);
+        if(!organization)
+            throw new BadRequestException("Organization does not exist");
         const tasks = input.emails.map(async (email) => {
             const token = await this.encoderService.generateToken();
 
             const invitation = await this.testimonialsInvitationService.create(email, token,category.id);
 
-            let emailTemplate:TestimonialInvitationEmailTemplate = new TestimonialInvitationEmailTemplate({toEmail:invitation.email,token:invitation.token});
+            let emailTemplateDto: InvitationTestimonialTemplateDto = {
+                logoUrl: organization.logoUrl,
+                organizationName: organization.name,
+                toEmail: invitation.email,
+                token: invitation.token,
+                username: username
+            }
+            let emailTemplate:TestimonialInvitationEmailTemplate = new TestimonialInvitationEmailTemplate(emailTemplateDto);
             return this.notificationService.sendNotificationWithTemplate(emailTemplate);
         });
 

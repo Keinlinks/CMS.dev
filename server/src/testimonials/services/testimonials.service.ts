@@ -103,10 +103,6 @@ export class TestimonialsService {
     });
   }
 
-  async addTags(testimonialId: string, userId: string) {
-
-  }
-
   async update(
     testimonialId: string,
     updateTestimonial: Testimonial,
