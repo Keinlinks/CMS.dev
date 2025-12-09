@@ -102,11 +102,11 @@ export function EditorInvite({
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg">
-                        <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                            <UserCircle className="size-4" />
+                        <div className=" bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                            <UserCircle className="size-4 " />
                         </div>
                         <div className="grid flex-1 text-left text-sm leading-tight">
-                            <span className="truncate font-medium ">Editores</span>
+                            <span className="truncate font-medium  ">Editores</span>
                             <span className="truncate text-xs">{editorsList.length} colaboradores</span>
                         </div>
                         <ChevronsUpDown className="ml-auto" />
@@ -125,7 +125,7 @@ export function EditorInvite({
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div className="bg-[#66F9C4] text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                            <div className="bg-[#66F9C4] text-[#0F111A] flex aspect-square size-8 items-center justify-center rounded-lg">
                                 <UserCircle className="size-4 " />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ">
@@ -197,7 +197,7 @@ export function EditorInvite({
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleSubmit}>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 ">
                                 <div className="grid gap-2">
                                     <Input
                                         id="email"

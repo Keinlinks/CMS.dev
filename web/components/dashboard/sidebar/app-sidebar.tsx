@@ -12,7 +12,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-import { SidebarLogo } from "@/components/dashboard/sidebar/sidebar-logo";
 import {
   getCurrentUserData,
   getUserOrganizations,
@@ -106,6 +105,7 @@ export async function AppSidebar({ organizations, ...props }: React.ComponentPro
   ]
 
   return (
+
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <OrganizationSwitcher teams={teams} currentOrgId={currentOrg?.id} />
@@ -115,7 +115,7 @@ export async function AppSidebar({ organizations, ...props }: React.ComponentPro
         />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarLogo src="/logo.webp" alt="My CMS" />
+
 
         <NavMain items={navMain} />
       </SidebarContent>
