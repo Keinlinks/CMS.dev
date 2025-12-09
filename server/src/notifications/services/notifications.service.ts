@@ -11,6 +11,13 @@ export class NotificationsService {
 
     async sendNotificationWithTemplate(emailNotificationDto:EmailNotificationBase){
         this.logger.log(`Sending email to ${emailNotificationDto.recipentEmail} with subject: ${emailNotificationDto.subject}`);
-        return await this.emailProvider.sendEmail(emailNotificationDto)
+        try{
+            return await this.emailProvider.sendEmail(emailNotificationDto)
+        }
+        catch(ex){
+            this.logger.error(`Error sending invitation to ${emailNotificationDto.recipentEmail}`, ex?.stack || ex);
+
+            return false;
+        }
     }
 }

@@ -12,7 +12,7 @@ export class InviteTestimonialDto {
   emails: string[];
 
   @ApiProperty({
-    type: [String],
+    type: String,
     description: 'Category ID associated with testimonials.',
   })
   @IsString()

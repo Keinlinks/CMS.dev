@@ -33,7 +33,6 @@ export class EmailProviderMailerSendImpl implements EmailProvider {
             email: emailNotificationDto.recipentEmail,
             data: emailNotificationDto.variables
         }]
-
         let result = await mailerSend.email.send(emailParams);
         return result.statusCode == 202;
     }
