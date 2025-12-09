@@ -4,6 +4,7 @@ import { NavMain } from "@/components/dashboard/sidebar/nav-main";
 import { NavUser } from "@/components/dashboard/sidebar/nav-user";
 import { OrganizationSwitcher } from "@/components/dashboard/sidebar/organization-switcher";
 import { EditorInvite } from "@/components/dashboard/sidebar/editor-invite";
+import { ReviewInvite } from "@/components/dashboard/sidebar/review-invite";
 import {
   Sidebar,
   SidebarContent,
@@ -113,6 +114,7 @@ export async function AppSidebar({ organizations, ...props }: React.ComponentPro
           editors={members}
           currentOrgId={currentOrg?.id}
         />
+        <ReviewInvite currentOrgId={currentOrg?.id} />
       </SidebarHeader>
       <SidebarContent>
 
