@@ -106,7 +106,7 @@ export function EditorInvite({
                             <UserCircle className="size-4" />
                         </div>
                         <div className="grid flex-1 text-left text-sm leading-tight">
-                            <span className="truncate font-medium">Editores</span>
+                            <span className="truncate font-medium ">Editores</span>
                             <span className="truncate text-xs">{editorsList.length} colaboradores</span>
                         </div>
                         <ChevronsUpDown className="ml-auto" />
@@ -125,11 +125,11 @@ export function EditorInvite({
                             size="lg"
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
-                            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                <UserCircle className="size-4" />
+                            <div className="bg-[#66F9C4] text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                                <UserCircle className="size-4 " />
                             </div>
-                            <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium">Editores</span>
+                            <div className="grid flex-1 text-left text-sm leading-tight ">
+                                <span className="truncate font-medium ">Editores</span>
                                 <span className="truncate text-xs">{editorsList.length} colaboradores</span>
                             </div>
                             <ChevronsUpDown className="ml-auto" />
@@ -141,7 +141,7 @@ export function EditorInvite({
                         side={isMobile ? "bottom" : "right"}
                         sideOffset={4}
                     >
-                        <DropdownMenuLabel className="text-muted-foreground text-xs">
+                        <DropdownMenuLabel className="text-muted-foreground text-xs ">
                             Editores
                         </DropdownMenuLabel>
                         {editorsList.map((editor) => (
@@ -188,7 +188,7 @@ export function EditorInvite({
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Dialog open={open} onOpenChange={setOpen}>
+                <Dialog open={open} onOpenChange={setOpen} >
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Invitar Editor</DialogTitle>
