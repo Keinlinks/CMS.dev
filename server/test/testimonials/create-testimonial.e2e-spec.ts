@@ -4,6 +4,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { JwtModule } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
+import { CategoriesModule } from "src/categories/categories.module";
 import { Category } from "src/categories/entities/category.entity";
 import { AuthGuard } from "src/common/guards/auth.guard";
 import { MediaStorageModule } from "src/media-storage/mediaStorage.module";
@@ -42,6 +43,7 @@ describe('Testimonials integration', () => {
         }),
         MediaStorageModule,
         TestimonialsModule,
+        CategoriesModule,
         TagsModule,
         SeedModule,
         JwtModule

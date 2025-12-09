@@ -34,6 +34,7 @@ import { InviteTestimonialUseCase } from '../useCases/inviteTestimonial.useCase'
 import { FindOneTestimonialUseCase } from '../useCases/findOneTestimonial.useCase';
 import { ChangeStatusTestimonialUseCase } from '../useCases/changeStatusTestimonial.useCase';
 import { RemoveTestimonialUseCase } from '../useCases/removeTestimonial.useCase';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('testimonials')
 export class TestimonialsController {
@@ -113,8 +114,8 @@ export class TestimonialsController {
   @ApiConsumes('application/json')
   @ApiBody({ type: InviteTestimonialDto })
   @ApiOperation({ summary: 'Invite an end customer (or many) to submit a testimonial.' })
-  inviteTestimonials(@Body() body: InviteTestimonialDto, @GetUser() user) {
-    return this.inviteTestimonialUseCase.execute(body,user.id);
+  inviteTestimonials(@Body() body: InviteTestimonialDto, @GetUser() user:User) {
+    return this.inviteTestimonialUseCase.execute(body,user.id,user.name || "");
   }
 
   @Get(':id')

@@ -22,16 +22,22 @@ import { AddUserOrganizationDto } from '../dto/add-userOrganiztion.dto';
 import { ChangeRoleDto } from '../dto/update-userOrganiztion.dto';
 import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateOrganizationUseCase } from '../useCases/createOganization.useCase';
+import { Organization } from '../entities/organization.entity';
 
 @Controller('organizations')
 export class OrganizationsController {
-  constructor(private readonly organizationsService: OrganizationsService) { }
+  constructor(
+    private readonly organizationsService: OrganizationsService,
+    private readonly createOrganizationUseCase:CreateOrganizationUseCase
+  ) { }
 
   @Post()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create an organization. For upload a logo image, send a "file" field in multipart/form-data.' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', {}))
+  @HttpCode(HttpStatus.CREATED)
   create(
     @Body() createorganizationDto: CreateOrganizationDto,
     @GetUser() user:User,
@@ -41,8 +47,8 @@ export class OrganizationsController {
             fileIsRequired: false,
             errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
           }),) file?: Express.Multer.File,
-  ) {
-    return this.organizationsService.create(createorganizationDto,user,file);
+  ):Promise<Organization> {
+    return this.createOrganizationUseCase.execute(createorganizationDto,user.id,file)
   }
 
   @Get()

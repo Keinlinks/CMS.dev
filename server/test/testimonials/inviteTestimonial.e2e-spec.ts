@@ -6,6 +6,7 @@ import { Test } from "@nestjs/testing";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "src/auth/auth.module";
 import { LoginDto } from "src/auth/dto/login.dto";
+import { CategoriesModule } from "src/categories/categories.module";
 import { Category } from "src/categories/entities/category.entity";
 import { AuthGuard } from "src/common/guards/auth.guard";
 import { OrganizationRole } from "src/common/types/userRole";
@@ -47,6 +48,7 @@ describe('Testimonials invite', () => {
                 AuthModule,
                 TagsModule,
                 SeedModule,
+                CategoriesModule,
                 JwtModule
             ],
             providers: [
@@ -84,7 +86,7 @@ describe('Testimonials invite', () => {
         organizationId = userOrg?.organizationId;
 
         let categoryRepo: Repository<Category> = moduleRef.get(getRepositoryToken(Category));
-        let category = await categoryRepo.findOne({ where: {} });
+        let category = await categoryRepo.findOne({ where: {name: "Service"} });
         categoryId = category?.id;
     });
 

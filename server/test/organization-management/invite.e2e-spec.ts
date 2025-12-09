@@ -14,6 +14,7 @@ import { EmailProvider } from "src/notifications/ports/emailProvider";
 import { EmailProviderFakeImpl } from "src/notifications/adapters/emailProviderFakeImpl";
 import { OrganizationRole } from "src/common/types/userRole";
 import { DataSource } from "typeorm";
+import { UserOrganizationService } from "src/user_organization/services/userOrganization.service";
 
 
 describe('Invitation integration', () => {
@@ -49,11 +50,13 @@ describe('Invitation integration', () => {
             name: "Invitation Test User"
         });
         let organizationService = moduleRef.get(OrganizationsService);
-        await organizationService.create({
-            description: "Organization for invitation testing",
-            name: "Invitation Test Org",
-            questionText: "",
-        }, user);
+        let userOrg = moduleRef.get(UserOrganizationService);
+        let org = await organizationService.create("org_123","description","",undefined);
+        await userOrg.create({
+            organizationId: org.id,
+            role: OrganizationRole.ADMINISTRATOR,
+            userId: user.id
+        })
         testUser1 = await userService.findOneWithOrganizations(user.id);
         const loginInput: LoginDto = {
             password: 'Password123',
