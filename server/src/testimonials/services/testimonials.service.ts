@@ -24,9 +24,9 @@ export class TestimonialsService {
   }
 
   async findAll(filters: TestimonialsParamsDto, userId: string): Promise<Testimonial[]> {
-    let org = await this.userOrganization.findUserOrganization(userId, filters.organitationId);
+    let org = await this.userOrganization.findUserOrganization(userId, filters.organizationId);
     if (!org) {
-      throw new UnauthorizedException(`User is not part of the organization ${filters.organitationId}`);
+      throw new UnauthorizedException(`User is not part of the organization ${filters.organizationId}`);
     }
     const { page = 1, itemsPerPage = 20, sort = 'ASC' } = filters;
     const limit = itemsPerPage;
@@ -51,7 +51,7 @@ export class TestimonialsService {
       take: limit,
       order: { createdAt: sort },
       where: {
-        organitation_id: filters.organitationId,
+        organitation_id: filters.organizationId,
         status: filters.status,
         stars_rating: filters.startsRating,
         ...(createdAtFilter && { createdAt: createdAtFilter }),
