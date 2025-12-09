@@ -1,7 +1,4 @@
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { TestimonialInvitation } from "../entities/testimonialInvitation.entity";
-import { Repository } from "typeorm";
 import { NotificationsService } from "src/notifications/services/notifications.service";
 import { TestimonialInvitationEmailTemplate } from "src/notifications/email-templates/testimonialInvitation.template";
 import { EncoderService } from "src/common/services/encoder.service";
@@ -10,7 +7,6 @@ import { OrganizationRole } from "src/common/types/userRole";
 import { TestimonialInvitationService } from "../services/testimonialInvitation.service";
 import { InviteTestimonialDto } from "../dto/invite-testimonial.dto";
 import { CategoriesService } from "src/categories/services/categories.service";
-
 
 @Injectable()
 export class InviteTestimonialUseCase {
