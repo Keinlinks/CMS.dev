@@ -10,5 +10,5 @@ export class WallTestimonialsParamsDto extends QueryParamsDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'Organization ID is required' })
-  organitationId: string;
+  organizationId: string;
 }

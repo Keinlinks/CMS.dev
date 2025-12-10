@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { UpdateTestimonialDto } from '../dto/update-testimonial.dto';
@@ -12,6 +12,7 @@ import { OrganizationRole } from 'src/common/types/userRole';
 
 @Injectable()
 export class TestimonialsService {
+  private readonly logger = new Logger(TestimonialsService.name);
   constructor(
     @InjectRepository(Testimonial)
     private testimonialsRepository: Repository<Testimonial>,
@@ -24,8 +25,10 @@ export class TestimonialsService {
   }
 
   async findAll(filters: TestimonialsParamsDto, userId: string): Promise<Testimonial[]> {
+    this.logger.log('intent for get all testimonials');
     let org = await this.userOrganization.findUserOrganization(userId, filters.organizationId);
     if (!org) {
+      this.logger.log(`intent for get all testimonials: User is not part of the organization ${filters.organizationId}`);
       throw new UnauthorizedException(`User is not part of the organization ${filters.organizationId}`);
     }
     const { page = 1, itemsPerPage = 20, sort = 'ASC' } = filters;
@@ -71,7 +74,7 @@ export class TestimonialsService {
         createdAt: sort,
       },
       where: {
-        organization_id: params.organitationId,
+        organization_id: params.organizationId,
         status: 'published',
       }
     });

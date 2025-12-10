@@ -30,7 +30,7 @@ export async function getTestimonialsAction(filters?: {
 
         const response = await apiClient.testimonials.testimonialsControllerFindAll(
             {
-                organitationId: currentOrg.id,
+                organizationId: currentOrg.id,
                 status: filters?.status,
                 page: filters?.page || 1,
                 itemsPerPage: filters?.itemsPerPage || 10,
@@ -190,54 +190,6 @@ export async function deleteTestimonialAction(testimonialId: string) {
         return {
             success: false,
             error: error.message || 'Error al eliminar testimonio'
-        }
-    }
-}
-
-/**
- * Actualiza los datos de un testimonio
- */
-export async function updateTestimonialAction(
-    testimonialId: string,
-    data: any
-) {
-    try {
-        // Verificar permisos - Editor y Admin pueden actualizar
-        const canUpdate = await hasRole('editor')
-
-        if (!canUpdate) {
-            return {
-                success: false,
-                error: 'No tienes permisos para actualizar testimonios'
-            }
-        }
-
-        const cookieStore = await cookies()
-        const token = cookieStore.get('auth_token')?.value
-
-        if (!token) {
-            return { success: false, error: 'No autenticado' }
-        }
-
-        const apiClient = createApiClient(token)
-
-        // Actualizar testimonio
-        await apiClient.testimonials.testimonialsControllerUpdate(
-            testimonialId,
-            data,
-            { format: 'json' }
-        )
-
-        // Revalidar rutas
-        revalidatePath('/dashboard/testimonials')
-        revalidatePath('/dashboard')
-
-        return { success: true, message: 'Testimonio actualizado exitosamente' }
-    } catch (error: any) {
-        console.error('Error updating testimonial:', error)
-        return {
-            success: false,
-            error: error.message || 'Error al actualizar testimonio'
         }
     }
 }

@@ -200,7 +200,7 @@ export async function getTestimonialStatsAction() {
 
         // Obtener todos los testimonios de la organización
         const response = await apiClient.testimonials.testimonialsControllerFindAll(
-            { organitationId: currentOrg.id },
+            { organizationId: currentOrg.id },
             { format: 'json' }
         )
 

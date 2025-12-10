@@ -22,7 +22,7 @@ export async function getWallTestimonialsAction(
 
         const response = await apiClient.testimonials.testimonialsControllerWallTestimonials(
             {
-                organitationId: organizationId,
+                organizationId: organizationId,
                 page: options?.page || 1,
                 itemsPerPage: options?.itemsPerPage || 20,
                 sort: options?.sort || 'DESC'

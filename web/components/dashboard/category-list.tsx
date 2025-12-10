@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useUserRole } from "@/components/providers/user-role-provider"
 import { useToast } from "@/hooks/use-toast"
-import { deleteCategoryAction } from "@/lib/actions/categories"
 
 interface CategoryListProps {
     categories: any[]
@@ -36,38 +35,38 @@ export function CategoryList({ categories }: CategoryListProps) {
     }
 
     const handleConfirmDelete = async () => {
-        if (!categoryToDelete) return
+    //     if (!categoryToDelete) return
 
-        setIsDeleting(true)
+    //     setIsDeleting(true)
 
-        try {
-            const result = await deleteCategoryAction(categoryToDelete.id)
+    //     try {
+    //         const result = await deleteCategoryAction(categoryToDelete.id)
 
-            if (result.success) {
-                toast({
-                    title: "Eliminada",
-                    description: result.message,
-                    variant: "destructive"
-                })
-                setDeleteDialogOpen(false)
-                setCategoryToDelete(null)
-                router.refresh()
-            } else {
-                toast({
-                    title: "Error",
-                    description: result.error,
-                    variant: "destructive"
-                })
-            }
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: "Ocurrió un error al eliminar",
-                variant: "destructive"
-            })
-        } finally {
-            setIsDeleting(false)
-        }
+    //         if (result.success) {
+    //             toast({
+    //                 title: "Eliminada",
+    //                 description: result.message,
+    //                 variant: "destructive"
+    //             })
+    //             setDeleteDialogOpen(false)
+    //             setCategoryToDelete(null)
+    //             router.refresh()
+    //         } else {
+    //             toast({
+    //                 title: "Error",
+    //                 description: result.error,
+    //                 variant: "destructive"
+    //             })
+    //         }
+    //     } catch (error) {
+    //         toast({
+    //             title: "Error",
+    //             description: "Ocurrió un error al eliminar",
+    //             variant: "destructive"
+    //         })
+    //     } finally {
+    //         setIsDeleting(false)
+    //     }
     }
 
     return (
