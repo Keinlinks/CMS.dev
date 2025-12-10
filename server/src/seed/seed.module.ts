@@ -76,7 +76,7 @@ export class SeedModule implements OnModuleInit {
                 org = await this.orgRepo.save({ name: `CMS Org ${i + 1}`, description: `organization of CMS ${i + 1}` });
             }
             let category = await this.categoryRepo.findOne({ where: { name: "Service" } })
-            await this.createTestimonials(3, org, category?.id || '');
+            await this.createTestimonials(8, org, category?.id || '');
             await this.userOrgRepo.save({ organizationId: org.id, userId: user.id, role: OrganizationRole.ADMINISTRATOR });
         }
     }

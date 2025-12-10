@@ -31,7 +31,7 @@ import { ObservabilityModule } from 'src/observability/observability.module';
         if (isLocal) {
           return {
             type: 'sqlite',
-            database: ':memory:',
+            database: 'local.db',
             dropSchema: true,
             autoLoadEntities: true,
             synchronize: true,

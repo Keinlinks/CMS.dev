@@ -51,7 +51,7 @@ export class TestimonialsService {
       take: limit,
       order: { createdAt: sort },
       where: {
-        organitation_id: filters.organizationId,
+        organization_id: filters.organizationId,
         status: filters.status,
         stars_rating: filters.startsRating,
         ...(createdAtFilter && { createdAt: createdAtFilter }),
