@@ -13,7 +13,7 @@ export class TestimonialInvitationEmailTemplate extends EmailNotificationBase{
         this.variables = {
             token: input.token,
             username: input.username,
-            domain: API_BASE_URL + "/testimonials/submit",
+            domain: API_BASE_URL + "/testimonials/accept-invitation",
             logoUrl: input.logoUrl,
             organizationName: input.organizationName
         };

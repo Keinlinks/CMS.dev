@@ -113,7 +113,7 @@ export class TestimonialsController {
   @Redirect()
   async acceptInvitationTestimonial(@Query('token') token: string) {
     await this.acceptInvitationTestimonialUseCase.execute(token);
-    return { url: `${FRONT_BASE_URL}/create-testimonial?token=${token}` }
+    return { url: `${FRONT_BASE_URL}/enviodetestimonios?token=${token}` }
   }
 
   @Get(':id')

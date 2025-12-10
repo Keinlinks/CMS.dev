@@ -39,7 +39,7 @@ export class InviteTestimonialUseCase {
         const tasks = input.emails.map(async (email) => {
             const token = await this.encoderService.generateToken();
 
-            const invitation = await this.testimonialsInvitationService.create(email, token,category.id);
+            const invitation = await this.testimonialsInvitationService.create(email, token,category.id,organization.id);
 
             let emailTemplateDto: InvitationTestimonialTemplateDto = {
                 logoUrl: organization.logoUrl,

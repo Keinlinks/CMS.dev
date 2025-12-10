@@ -23,6 +23,7 @@ import { RequestUser } from 'src/common/types/request-user';
 import { NotificationsService } from 'src/notifications/services/notifications.service';
 import { ConfirmEmailTemplate } from 'src/notifications/email-templates/confirmEmail.template';
 import { EmailVerificationService } from './emailVerification.service';
+import { API_BASE_URL } from 'src/common/constant/constant';
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,7 @@ export class AuthService {
     private emailVerificationService: EmailVerificationService,
   ) { }
   async login(username: string, password: string): Promise<RequestUser> {
-    this.logger.log(`Login intent for user ${username}`);
+    this.logger.log(`Login intent for user ${username}: env: ${API_BASE_URL}`);
 
     const user = await this.userService.findOneWithPassword(username);
 

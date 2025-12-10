@@ -5,8 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { createNewTestimonialDto } from "@/lib/types/createNewTestimonial.dto";
+import { submitTestimonialAction } from "@/lib/actions/testimonials";
+import { MediaType } from "@/lib/types/mediaType";
 
 export default function EnvioDeTestimoniosPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || '';
+
   const [testimonial, setTestimonial] = useState("");
   const [rating, setRating] = useState<number>(5);
   const [name, setName] = useState("");
@@ -15,6 +22,7 @@ export default function EnvioDeTestimoniosPage() {
   const [sent, setSent] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState("");
+
 
   // ✅ LOGO RANDOM (tipo avatar) - Moved to useEffect for hydration safety
   useEffect(() => {
@@ -33,9 +41,16 @@ export default function EnvioDeTestimoniosPage() {
     e.preventDefault();
     setSubmitting(true);
 
-    const payload = { testimonial, rating, name, email, file };
+    const payload:createNewTestimonialDto = {  
+      client_name:name,
+      content: testimonial,
+      client_email: email,
+      media_type: file ? MediaType.IMAGE : MediaType.TEXT,
+      stars_rating: rating,
+      token: token
+    };
     console.log("Enviar testimonio:", payload);
-
+    submitTestimonialAction(payload)
     await new Promise((r) => setTimeout(r, 700));
     setSubmitting(false);
     setSent(true);

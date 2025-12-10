@@ -1,3 +1,4 @@
+import { IsNotEmpty } from "class-validator";
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, CreateDateColumn, Entity, Index } from "typeorm";
 
@@ -13,6 +14,9 @@ export class TestimonialInvitation extends BaseEntity {
 
     @Column()
     categoryId:string;
+
+    @Column({nullable: false})
+    organizationId:string;
 
     @CreateDateColumn({nullable: false})
     expires_at: Date;

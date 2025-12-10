@@ -22,15 +22,6 @@ export class CreateTestimonialDto {
   client_name: string;
 
   @ApiProperty({
-    description: 'ID of the organization submitting the testimonial.',
-    example: 'org_12345',
-    type: 'string',
-  })
-  @IsString()
-  @IsNotEmpty({ message: 'Organization ID is required' })
-  organization_id: string;
-
-  @ApiProperty({
     description: 'Title of the testimonial (between 3 and 255 characters).',
     example: 'Amazing service!',
     type: 'string',

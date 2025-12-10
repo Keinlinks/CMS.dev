@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
+import 'dotenv/config';
 async function bootstrap() {
   const logger = new Logger('MAIN')
   const app = await NestFactory.create(AppModule,{

@@ -6,6 +6,11 @@ import { createApiClient } from '@/lib/api/client'
 import { isCurrentUserAdmin, hasRole } from '@/lib/utils/auth-utils'
 import { TestimonialStatus, getSuccessMessage } from '@/lib/types/testimonial-status'
 import type { ChangeStatusDto } from '@/lib/types/api-dtos'
+import { createNewTestimonialDto } from '../types/createNewTestimonial.dto'
+
+
+
+
 
 /**
  * Obtiene la lista de testimonios con filtros opcionales
@@ -190,6 +195,30 @@ export async function deleteTestimonialAction(testimonialId: string) {
         return {
             success: false,
             error: error.message || 'Error al eliminar testimonio'
+        }
+    }
+}
+
+export async function submitTestimonialAction(testimonial: createNewTestimonialDto) {
+    try {
+        const apiClient = createApiClient();
+
+        // Eliminar testimonio
+        await apiClient.testimonials.testimonialsControllerCreate({token:testimonial.token},{
+            client_name: testimonial.client_name,
+            content: testimonial.content,
+            media_type: testimonial.media_type,
+            stars_rating: testimonial.stars_rating,
+            client_email: testimonial.client_email,
+            title: "Amazing service",
+        })
+
+        return { success: true, message: 'Testimonio enviado exitosamente' }
+    } catch (error: any) {
+        console.error('Error creating testimonial:', error)
+        return {
+            success: false,
+            error: error.message || 'Error al crear el testimonio'
         }
     }
 }

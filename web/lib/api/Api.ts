@@ -32,11 +32,6 @@ export interface CreateTestimonialDto {
    */
   client_name: string;
   /**
-   * ID of the organization submitting the testimonial.
-   * @example "org_12345"
-   */
-  organization_id: string;
-  /**
    * Title of the testimonial (between 3 and 255 characters).
    * @minLength 3
    * @maxLength 255

@@ -26,9 +26,9 @@ export class CreateTestimonialsUseCase {
         if (!invitation) throw new BadRequestException("Invalid token");
         this.validateInvitation(invitation);
 
-        const org = await this.organizationService.findOneUnsafe(createTestimonialDto.organization_id);
+        const org = await this.organizationService.findOneUnsafe(invitation.organizationId);
         if (!org) {
-            throw new NotFoundException(`Organization ${createTestimonialDto.organization_id} does not exist`);
+            throw new NotFoundException(`Organization ${invitation.organizationId} does not exist`);
         }
 
         const category = await this.categoryService.findOne(invitation.categoryId);
@@ -37,7 +37,7 @@ export class CreateTestimonialsUseCase {
         }
 
         if (createTestimonialDto.media_type == MediaType.TEXT) {
-            const testimonial = await this.createTestimonial(createTestimonialDto,category.id);
+            const testimonial = await this.createTestimonial(createTestimonialDto,category.id,invitation.organizationId);
             invitation.markAsUsed();
             await this.testimonialInvitationService.update(invitation);
             return testimonial;
@@ -46,7 +46,7 @@ export class CreateTestimonialsUseCase {
         if (!file)
             throw new UnprocessableEntityException('Media file is required for the selected media type');
 
-        const testimonial = await this.createTestimonialWithMedia(createTestimonialDto,category.id, file, file.originalname);
+        const testimonial = await this.createTestimonialWithMedia(createTestimonialDto,category.id,invitation.organizationId, file, file.originalname);
         invitation.markAsUsed();
         await this.testimonialInvitationService.update(invitation);
         return testimonial;
@@ -55,6 +55,7 @@ export class CreateTestimonialsUseCase {
     async createTestimonialWithMedia(
         createTestimonialDto: CreateTestimonialDto,
         categoryId:string,
+        organizationId:string,
         file: Express.Multer.File,
         filename: string,
     ): Promise<Testimonial> {
@@ -73,7 +74,7 @@ export class CreateTestimonialsUseCase {
         }
         try {
             let objectFilename = this.generateMediaFilename(
-                createTestimonialDto.organization_id,
+                organizationId,
                 filename,
             );
             let secureUrl = await this.mediaStorageService.uploadFile(
@@ -81,7 +82,7 @@ export class CreateTestimonialsUseCase {
                 objectFilename,
             );
             testimonial.media_url = secureUrl;
-            this.logger.log(`Creating testimonial for organization ${createTestimonialDto.organization_id} with media`);
+            this.logger.log(`Creating testimonial for organization ${organizationId} with media`);
             this.logger.debug(`Testimonial details: ${JSON.stringify(testimonial)}`);
             return this.testimonialsService.create(testimonial);
         } catch (error) {
@@ -94,13 +95,14 @@ export class CreateTestimonialsUseCase {
             );
         }
     }
-    async createTestimonial(createTestimonialDto: CreateTestimonialDto,categoryId:string) {
+    async createTestimonial(createTestimonialDto: CreateTestimonialDto,categoryId:string,organizationId:string) {
         const testimonial: Partial<Testimonial> = {
             ...createTestimonialDto,
             category_id: categoryId,
+            organization_id: organizationId,
             status: TestimonialStatus.PENDING,
         }
-        this.logger.log(`Creating testimonial for organization ${createTestimonialDto.organization_id} without media`);
+        this.logger.log(`Creating testimonial for organization ${organizationId} without media`);
         this.logger.debug(`Testimonial details: ${JSON.stringify(testimonial)}`);
         return this.testimonialsService.create(testimonial);
     }
