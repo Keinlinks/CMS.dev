@@ -55,6 +55,6 @@ export class InviteTestimonialUseCase {
         await Promise.all(tasks);
         this.logger.log(`Invitations sent to emails: ${input.emails.join(", ")}`);
         this.logger.debug(`Invitation input: ${JSON.stringify(input)}`)
-        return { message: "Todas las invitaciones se enviaron correctamente" };
+        return { message: "All invitations sended" };
     }
 }
