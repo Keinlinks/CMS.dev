@@ -4,6 +4,7 @@ import { NavMain } from "@/components/dashboard/sidebar/nav-main";
 import { NavUser } from "@/components/dashboard/sidebar/nav-user";
 import { OrganizationSwitcher } from "@/components/dashboard/sidebar/organization-switcher";
 import { EditorInvite } from "@/components/dashboard/sidebar/editor-invite";
+import { ReviewInvite } from "@/components/dashboard/sidebar/review-invite";
 import {
   Sidebar,
   SidebarContent,
@@ -12,7 +13,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-import { SidebarLogo } from "@/components/dashboard/sidebar/sidebar-logo";
 import {
   getCurrentUserData,
   getUserOrganizations,
@@ -106,6 +106,7 @@ export async function AppSidebar({ organizations, ...props }: React.ComponentPro
   ]
 
   return (
+
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <OrganizationSwitcher teams={teams} currentOrgId={currentOrg?.id} />
@@ -113,9 +114,10 @@ export async function AppSidebar({ organizations, ...props }: React.ComponentPro
           editors={members}
           currentOrgId={currentOrg?.id}
         />
+        <ReviewInvite currentOrgId={currentOrg?.id} />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarLogo src="/logo.webp" alt="My CMS" />
+
 
         <NavMain items={navMain} />
       </SidebarContent>
