@@ -17,6 +17,7 @@ import { TestimonialInvitationService } from './services/testimonialInvitation.s
 import { FindOneTestimonialUseCase } from './useCases/findOneTestimonial.useCase';
 import { ChangeStatusTestimonialUseCase } from './useCases/changeStatusTestimonial.useCase';
 import { RemoveTestimonialUseCase } from './useCases/removeTestimonial.useCase';
+import { AcceptInvitationTestimonialUseCase } from './useCases/acceptInvitationTestimonial.useCase';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RemoveTestimonialUseCase } from './useCases/removeTestimonial.useCase';
     FindOneTestimonialUseCase,
     ChangeStatusTestimonialUseCase,
     RemoveTestimonialUseCase,
+    AcceptInvitationTestimonialUseCase,
   ],
   exports: [TestimonialsService],
 })

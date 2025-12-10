@@ -7,9 +7,9 @@ import { Repository } from "typeorm";
 
 @Injectable()
 export class TestimonialInvitationService {
-    constructor(@InjectRepository(TestimonialInvitation) private readonly testimonialInvitationRepo:Repository<TestimonialInvitation>) {}
+    constructor(@InjectRepository(TestimonialInvitation) private readonly testimonialInvitationRepo: Repository<TestimonialInvitation>) { }
 
-    async create(email:string, token:string,categoryId:string){
+    async create(email: string, token: string, categoryId: string) {
         const invitation = this.testimonialInvitationRepo.create({
             email,
             token,
@@ -19,5 +19,13 @@ export class TestimonialInvitationService {
         });
 
         return this.testimonialInvitationRepo.save(invitation);
+    }
+
+    async findByToken(token: string): Promise<TestimonialInvitation | null> {
+        return this.testimonialInvitationRepo.findOne({ where: { token } });
+    }
+
+    async update(updatedTestimonialInvitation: TestimonialInvitation): Promise<TestimonialInvitation> {
+        return this.testimonialInvitationRepo.save(updatedTestimonialInvitation);
     }
 }

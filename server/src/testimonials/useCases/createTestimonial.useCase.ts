@@ -1,10 +1,14 @@
-import { Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, GoneException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { Testimonial } from '../entities/testimonial.entity';
 import { MediaStorageService } from 'src/media-storage/services/mediaStorage.service';
 import { CreateTestimonialDto } from '../dto/create-testimonial.dto';
 import { CategoriesService } from 'src/categories/services/categories.service';
 import { OrganizationsService } from 'src/organizations/services/organizations.service';
 import { TestimonialsService } from '../services/testimonials.service';
+import { TestimonialInvitationService } from '../services/testimonialInvitation.service';
+import { MediaType } from '../enums/mediaType';
+import { TestimonialStatus } from '../enums/testimonialStatus';
+import { TestimonialInvitation } from '../entities/testimonialInvitation.entity';
 
 @Injectable()
 export class CreateTestimonialsUseCase {
@@ -14,24 +18,58 @@ export class CreateTestimonialsUseCase {
         private readonly mediaStorageService: MediaStorageService,
         private readonly categoryService: CategoriesService,
         private readonly organizationService: OrganizationsService,
+        private readonly testimonialInvitationService: TestimonialInvitationService
     ) { }
 
-    async createTestimonialWithMedia(
-        createTestimonialDto: CreateTestimonialDto,
-        file: Express.Multer.File,
-        filename: string,
-    ): Promise<Testimonial> {
+    async execute(createTestimonialDto: CreateTestimonialDto, token: string, file?: Express.Multer.File) {
+        let invitation = await this.testimonialInvitationService.findByToken(token);
+        if (!invitation) throw new BadRequestException("Invalid token");
+        this.validateInvitation(invitation);
+
         const org = await this.organizationService.findOneUnsafe(createTestimonialDto.organization_id);
         if (!org) {
             throw new NotFoundException(`Organization ${createTestimonialDto.organization_id} does not exist`);
         }
-        const category = await this.categoryService.findOne(createTestimonialDto.category_id);
+
+        const category = await this.categoryService.findOne(invitation.categoryId);
         if (!category) {
-            throw new NotFoundException(`Category ${createTestimonialDto.category_id} does not exist`);
+            throw new NotFoundException(`Category ${invitation.categoryId} does not exist`);
         }
+
+        if (createTestimonialDto.media_type == MediaType.TEXT) {
+            const testimonial = await this.createTestimonial(createTestimonialDto,category.id);
+            invitation.markAsUsed();
+            await this.testimonialInvitationService.update(invitation);
+            return testimonial;
+        }
+
+        if (!file)
+            throw new UnprocessableEntityException('Media file is required for the selected media type');
+
+        const testimonial = await this.createTestimonialWithMedia(createTestimonialDto,category.id, file, file.originalname);
+        invitation.markAsUsed();
+        await this.testimonialInvitationService.update(invitation);
+        return testimonial;
+    }
+
+    async createTestimonialWithMedia(
+        createTestimonialDto: CreateTestimonialDto,
+        categoryId:string,
+        file: Express.Multer.File,
+        filename: string,
+    ): Promise<Testimonial> {
+        const mime = file.mimetype;
+        if (!mime.startsWith('image') && !mime.startsWith('video'))
+            throw new UnprocessableEntityException('Only image and video files are allowed');
+
+        const type = createTestimonialDto.media_type;
+        if (!mime.startsWith(type))
+            throw new UnprocessableEntityException('Media type does not match the uploaded file');
+
         const testimonial: Partial<Testimonial> = {
             ...createTestimonialDto,
-            status: "pending",
+            category_id: categoryId,
+            status: TestimonialStatus.PENDING,
         }
         try {
             let objectFilename = this.generateMediaFilename(
@@ -56,18 +94,11 @@ export class CreateTestimonialsUseCase {
             );
         }
     }
-    async createTestimonial(createTestimonialDto: CreateTestimonialDto) {
-        const org = await this.organizationService.findOneUnsafe(createTestimonialDto.organization_id);
-        if (!org) {
-            throw new NotFoundException(`Organization ${createTestimonialDto.organization_id} does not exist`);
-        }
-        const category = await this.categoryService.findOne(createTestimonialDto.category_id);
-        if (!category) {
-            throw new NotFoundException(`Category ${createTestimonialDto.category_id} does not exist`);
-        }
+    async createTestimonial(createTestimonialDto: CreateTestimonialDto,categoryId:string) {
         const testimonial: Partial<Testimonial> = {
             ...createTestimonialDto,
-            status: "pending",
+            category_id: categoryId,
+            status: TestimonialStatus.PENDING,
         }
         this.logger.log(`Creating testimonial for organization ${createTestimonialDto.organization_id} without media`);
         this.logger.debug(`Testimonial details: ${JSON.stringify(testimonial)}`);
@@ -82,5 +113,8 @@ export class CreateTestimonialsUseCase {
         const sanitizedFilename = originalFilename.replace(/\s+/g, '_');
         return `testimonials/${organizationId}/${timestamp}_${sanitizedFilename}`;
     }
-
+    private validateInvitation(invitation: TestimonialInvitation) {
+        if (invitation.used_at) throw new ConflictException("Token already used");
+        if (invitation.expires_at < new Date()) throw new GoneException("Token expired");
+    }
 }

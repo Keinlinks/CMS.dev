@@ -114,10 +114,10 @@ export class SeedModule implements OnModuleInit {
     async createTestimonials(count: number, organization: Organization, categoryId: string) {
         for (let i = 0; i < count; i++) {
             let userNumber = i + 1;
-            let testimonial: CreateTestimonialDto = {
-                category_id: categoryId,
+            let testimonial: Partial<Testimonial> = {
                 content: `This is testimonial content for organization ${organization.name}`,
                 media_type: MediaType.TEXT,
+                category_id: categoryId,
                 organization_id: organization.id,
                 title: `Testimonial Title ${userNumber}`,
                 stars_rating: Math.floor(Math.random() * 5) + 1,

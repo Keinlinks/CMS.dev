@@ -19,4 +19,8 @@ export class TestimonialInvitation extends BaseEntity {
 
     @CreateDateColumn({nullable: true})
     used_at: Date | null;
+
+    markAsUsed(){
+        this.used_at = new Date();
+    }
 }

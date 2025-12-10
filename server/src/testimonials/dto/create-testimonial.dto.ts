@@ -31,15 +31,6 @@ export class CreateTestimonialDto {
   organization_id: string;
 
   @ApiProperty({
-    description: 'Category ID associated with the testimonial. Must be a valid UUID v4.',
-    example: 'c0f9c216-2e9d-49b9-836f-3c40a0d7f023',
-    type: 'string',
-  })
-  @IsUUID('4', { message: 'Category ID must be a valid UUID' })
-  @IsNotEmpty({ message: 'Category ID is required' })
-  category_id: string;
-
-  @ApiProperty({
     description: 'Title of the testimonial (between 3 and 255 characters).',
     example: 'Amazing service!',
     type: 'string',
@@ -87,15 +78,15 @@ export class CreateTestimonialDto {
   stars_rating?: number;
 
   @ApiPropertyOptional({
-  type: 'array',
-  items: { type: 'string', format: 'uuid' },
-  example: ['ec97b2a3-5b9e-4c11-8ec9-2f7b4e9af8d4','57c4c242-9f67-4d7a-b122-33cf10c1e3d0']
-})
-@Transform(({ value }) => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  return value.split(',').map(v => v.trim());
-})
+    type: 'array',
+    items: { type: 'string', format: 'uuid' },
+    example: ['ec97b2a3-5b9e-4c11-8ec9-2f7b4e9af8d4', '57c4c242-9f67-4d7a-b122-33cf10c1e3d0']
+  })
+  @Transform(({ value }) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    return value.split(',').map(v => v.trim());
+  })
   @IsOptional()
   @IsArray({ message: 'Tags must be an array' })
   @IsUUID('4', { each: true, message: 'Each tag must be a valid UUID' })
