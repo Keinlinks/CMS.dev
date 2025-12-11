@@ -7,6 +7,7 @@ import { isCurrentUserAdmin, hasRole } from '@/lib/utils/auth-utils'
 import { TestimonialStatus, getSuccessMessage } from '@/lib/types/testimonial-status'
 import type { ChangeStatusDto } from '@/lib/types/api-dtos'
 import { createNewTestimonialDto } from '../types/createNewTestimonial.dto'
+import { ContentType } from '../api/Api'
 
 
 
@@ -203,14 +204,20 @@ export async function submitTestimonialAction(testimonial: createNewTestimonialD
     try {
         const apiClient = createApiClient();
 
-        // Eliminar testimonio
-        await apiClient.testimonials.testimonialsControllerCreate({token:testimonial.token},{
-            client_name: testimonial.client_name,
-            content: testimonial.content,
-            media_type: testimonial.media_type,
-            stars_rating: testimonial.stars_rating,
-            client_email: testimonial.client_email,
-            title: "Amazing service",
+        await apiClient.request<void, any>({
+            path: `/testimonials`,
+            method: "POST",
+            query: { token: testimonial.token },
+            body: {
+                client_name: testimonial.client_name,
+                content: testimonial.content,
+                media_type: testimonial.media_type,
+                stars_rating: testimonial.stars_rating,
+                client_email: testimonial.client_email,
+                title: "Amazing service",
+                file: testimonial.file
+            },
+            type: ContentType.FormData
         })
 
         return { success: true, message: 'Testimonio enviado exitosamente' }

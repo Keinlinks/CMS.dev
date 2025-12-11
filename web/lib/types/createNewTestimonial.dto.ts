@@ -7,4 +7,5 @@ export interface createNewTestimonialDto{
     media_type: MediaType;
     stars_rating: number;
     token:string
+    file?:File
 }

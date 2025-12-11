@@ -70,6 +70,7 @@ export class CreateTestimonialsUseCase {
         const testimonial: Partial<Testimonial> = {
             ...createTestimonialDto,
             category_id: categoryId,
+            organization_id: organizationId,
             status: TestimonialStatus.PENDING,
         }
         try {

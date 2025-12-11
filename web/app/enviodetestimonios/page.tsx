@@ -47,7 +47,8 @@ export default function EnvioDeTestimoniosPage() {
       client_email: email,
       media_type: file ? MediaType.IMAGE : MediaType.TEXT,
       stars_rating: rating,
-      token: token
+      token: token,
+      file: file || undefined
     };
     console.log("Enviar testimonio:", payload);
     submitTestimonialAction(payload)
