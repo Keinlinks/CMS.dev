@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -24,10 +24,11 @@ import { ObservabilityModule } from 'src/observability/observability.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => {
+        const logger = new Logger('Typeorm Factory')
         const env = config.get('NODE_ENV');
 
         const isLocal = env === 'development';
-
+        logger.log(`Database: ${isLocal ? 'Sqlite' : 'Postgres'}`)
         if (isLocal) {
           return {
             type: 'sqlite',
