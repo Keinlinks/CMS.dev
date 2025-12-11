@@ -49,7 +49,6 @@ import { ObservabilityModule } from 'src/observability/observability.module';
           synchronize: true,
           migrationsRun: true,
           migrations: [__dirname + '/migrations/*{.js,.ts}'],
-          ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
         };
       },
       inject: [ConfigService],
