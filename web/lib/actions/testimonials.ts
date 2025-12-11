@@ -21,6 +21,9 @@ export async function getTestimonialsAction(filters?: {
     categoryId?: string
     page?: number
     itemsPerPage?: number
+    from?: string
+    to?: string
+    rating?: number
 }) {
     try {
         const cookieStore = await cookies()
@@ -40,6 +43,9 @@ export async function getTestimonialsAction(filters?: {
                 status: filters?.status,
                 page: filters?.page || 1,
                 itemsPerPage: filters?.itemsPerPage || 10,
+                createdFrom: filters?.from,
+                createdTo: filters?.to,
+                startsRating: filters?.rating
             },
             { format: 'json' }
         )

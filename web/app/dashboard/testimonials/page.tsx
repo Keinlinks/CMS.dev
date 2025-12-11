@@ -8,6 +8,7 @@ import { CheckCircle2, Clock, Eye, XCircle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cookies } from 'next/headers'
 import { getUserRoleInCurrentOrg } from '@/lib/actions/user-role'
+import { TestimonialFilters } from '@/components/dashboard/testimonials-filters'
 
 // Función para obtener el color del badge según el status
 function getStatusBadgeColor(status: string) {
@@ -62,10 +63,16 @@ function getStatusText(status: string) {
 
 async function TestimonialsContent({
   status,
-  page
+  page,
+  from,
+  to,
+  rating
 }: {
   status?: string
   page?: string
+  from?: string
+  to?: string
+  rating?: string
 }) {
   // Obtener rol del usuario
   const userRole = await getUserRoleInCurrentOrg()
@@ -76,7 +83,10 @@ async function TestimonialsContent({
   const result = await getTestimonialsAction({
     status: statusFilter,
     page: parseInt(page || '1'),
-    itemsPerPage: 50
+    itemsPerPage: 50,
+    from: from,
+    to: to,
+    rating: rating ? parseInt(rating) : undefined
   })
 
   const testimonials = result.success ? result.data : []
@@ -101,22 +111,26 @@ async function TestimonialsContent({
 
   return (
     <div className="p-0">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{getTitle()}</h1>
-          <p className="text-muted-foreground">
-            {status
-              ? `Mostrando ${testimonials.length} testimonio(s) con estado "${getStatusText(status)}"`
-              : `Mostrando todos los ${testimonials.length} testimonios`}
-          </p>
+      <div className="mb-6 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{getTitle()}</h1>
+            <p className="text-muted-foreground">
+              {status
+                ? `Mostrando ${testimonials.length} testimonio(s) con estado "${getStatusText(status)}"`
+                : `Mostrando todos los ${testimonials.length} testimonios`}
+            </p>
+          </div>
+
+          <Button asChild variant="outline" className="gap-2">
+            <Link href="/dashboard/embed" target="_blank">
+              <ExternalLink className="w-4 h-4" />
+              Ver mi Muro
+            </Link>
+          </Button>
         </div>
 
-        <Button asChild variant="outline" className="gap-2">
-          <Link href="/dashboard/embed" target="_blank">
-            <ExternalLink className="w-4 h-4" />
-            Ver mi Muro
-          </Link>
-        </Button>
+        <TestimonialFilters />
       </div>
 
       {!result.success && (
@@ -258,12 +272,18 @@ async function TestimonialsContent({
 export default async function TestimonialsPage({
   searchParams
 }: {
-  searchParams: Promise<{ status?: string; page?: string }>
+  searchParams: Promise<{ status?: string; page?: string; from?: string; to?: string; rating?: string }>
 }) {
   const params = await searchParams
   return (
     <Suspense fallback={<div>Cargando testimonios...</div>}>
-      <TestimonialsContent status={params.status} page={params.page} />
+      <TestimonialsContent
+        status={params.status}
+        page={params.page}
+        from={params.from}
+        to={params.to}
+        rating={params.rating}
+      />
     </Suspense>
   )
 }
