@@ -37,7 +37,6 @@ import { ObservabilityModule } from 'src/observability/observability.module';
             synchronize: true,
           };
         }
-        await ensureDatabase();
         return {
           type: 'postgres',
           url: process.env.DATABASE_URL,
