@@ -241,14 +241,14 @@ export async function inviteTestimonialAction(testimonial: InviteTestimonialDto)
 }
 
 export async function submitTestimonialAction(testimonial: createNewTestimonialDto) {
-    try {
+    
         const apiClient = createApiClient();
 
         let mediaType = MediaType.TEXT;
         if (testimonial.file) {
             mediaType = getFileKind(testimonial.file);
         }
-
+        try {
         await apiClient.request<void, any>({
             path: `/testimonials`,
             method: "POST",
@@ -268,17 +268,15 @@ export async function submitTestimonialAction(testimonial: createNewTestimonialD
         return { success: true, message: 'Testimonio enviado exitosamente' }
     } catch (error: any) {
         console.log("ERROR RAW:", error);
-
-        // Si el cliente ya parseó el body (usualmente está en error.data)
-        if (error.data) {
-            console.log("Error body:", error.data);
+        const body = await error.response.json();
+        if (body) {
+            console.log("Error body:", body);
             return {
                 success: false,
-                error: error.data.message || JSON.stringify(error.data)
+                error: body || JSON.stringify(body)
             };
         }
 
-        // Si el cliente te dejó el Response sin parsear:
         if (error.response instanceof Response) {
             const body = await error.response.json().catch(() => null);
             console.log("Parsed body:", body);
