@@ -4,7 +4,8 @@ import { cookies } from 'next/headers'
 export async function POST(req: Request) {
     try {
         const body = await req.json()
-        const { emails, organizationId } = body
+        const { emails, organizationId, categoryId } = body
+
 
         if (!emails || !Array.isArray(emails) || emails.length === 0) {
             return NextResponse.json({ error: 'No emails provided' }, { status: 400 })

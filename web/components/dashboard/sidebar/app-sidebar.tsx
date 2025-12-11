@@ -4,7 +4,7 @@ import { NavMain } from "@/components/dashboard/sidebar/nav-main";
 import { NavUser } from "@/components/dashboard/sidebar/nav-user";
 import { OrganizationSwitcher } from "@/components/dashboard/sidebar/organization-switcher";
 import { EditorInvite } from "@/components/dashboard/sidebar/editor-invite";
-import { ReviewInvite } from "@/components/dashboard/sidebar/review-invite";
+import { ReviewInvite } from "@/components/dashboard/sidebar/review-invite-v2";
 import {
   Sidebar,
   SidebarContent,
@@ -93,10 +93,6 @@ export async function AppSidebar({ organizations, ...props }: React.ComponentPro
       url: "#",
       icon: "Settings2",
       items: [
-        {
-          title: "Categorias",
-          url: "/dashboard/categories",
-        },
         {
           title: "Muro",
           url: "/dashboard/embed",

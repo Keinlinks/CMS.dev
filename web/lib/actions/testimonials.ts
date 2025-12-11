@@ -7,7 +7,7 @@ import { isCurrentUserAdmin, hasRole } from '@/lib/utils/auth-utils'
 import { TestimonialStatus, getSuccessMessage } from '@/lib/types/testimonial-status'
 import type { ChangeStatusDto } from '@/lib/types/api-dtos'
 import { createNewTestimonialDto } from '../types/createNewTestimonial.dto'
-import { ContentType } from '../api/Api'
+import { ContentType, InviteTestimonialDto } from '../api/Api'
 
 
 
@@ -196,6 +196,39 @@ export async function deleteTestimonialAction(testimonialId: string) {
         return {
             success: false,
             error: error.message || 'Error al eliminar testimonio'
+        }
+    }
+}
+
+export async function inviteTestimonialAction(testimonial: InviteTestimonialDto) {
+    try {
+        const isAdmin = await isCurrentUserAdmin()
+
+        if (!isAdmin) {
+            return {
+                success: false,
+                error: 'Solo los administradores pueden eliminar testimonios'
+            }
+        }
+
+        const cookieStore = await cookies()
+        const token = cookieStore.get('auth_token')?.value
+
+        if (!token) {
+            return { success: false, error: 'No autenticado' }
+        }
+
+        const apiClient = createApiClient(token);
+
+        let response = await apiClient.testimonials.testimonialsControllerInviteTestimonials(testimonial);
+        if(response.status != 200)
+            throw new Error("Error inviting testimonial")
+        return { success: true, message: 'Invitaciones enviadas correctamente' }
+    } catch (error: any) {
+        console.error('Error inviting testimonial:', error)
+        return {
+            success: false,
+            error: error.message || 'Error al invitar a el testimonio'
         }
     }
 }
