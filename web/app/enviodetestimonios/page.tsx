@@ -45,7 +45,6 @@ export default function EnvioDeTestimoniosPage() {
       client_name:name,
       content: testimonial,
       client_email: email,
-      media_type: file ? MediaType.IMAGE : MediaType.TEXT,
       stars_rating: rating,
       token: token,
       file: file || undefined

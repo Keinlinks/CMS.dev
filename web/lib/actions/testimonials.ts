@@ -8,6 +8,7 @@ import { TestimonialStatus, getSuccessMessage } from '@/lib/types/testimonial-st
 import type { ChangeStatusDto } from '@/lib/types/api-dtos'
 import { createNewTestimonialDto } from '../types/createNewTestimonial.dto'
 import { ContentType, InviteTestimonialDto } from '../api/Api'
+import { MediaType } from '../types/mediaType'
 
 
 
@@ -242,6 +243,11 @@ export async function inviteTestimonialAction(testimonial: InviteTestimonialDto)
 export async function submitTestimonialAction(testimonial: createNewTestimonialDto) {
     try {
         const apiClient = createApiClient();
+        
+        let mediaType = MediaType.TEXT;
+        if(testimonial.file){
+            mediaType = getFileKind(testimonial.file);
+        }
 
         await apiClient.request<void, any>({
             path: `/testimonials`,
@@ -250,7 +256,7 @@ export async function submitTestimonialAction(testimonial: createNewTestimonialD
             body: {
                 client_name: testimonial.client_name,
                 content: testimonial.content,
-                media_type: testimonial.media_type,
+                media_type: mediaType,
                 stars_rating: testimonial.stars_rating,
                 client_email: testimonial.client_email,
                 title: "Amazing service",
@@ -267,4 +273,9 @@ export async function submitTestimonialAction(testimonial: createNewTestimonialD
             error: error.message || 'Error al crear el testimonio'
         }
     }
+}
+function getFileKind(file: File): MediaType {
+  if (file.type.startsWith("image/")) return MediaType.IMAGE;
+  if (file.type.startsWith("video/")) return MediaType.VIDEO;
+  throw new Error("Incorrect media type")
 }
