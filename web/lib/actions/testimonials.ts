@@ -228,7 +228,7 @@ export async function inviteTestimonialAction(testimonial: InviteTestimonialDto)
         const apiClient = createApiClient(token);
 
         let response = await apiClient.testimonials.testimonialsControllerInviteTestimonials(testimonial);
-        if(response.status != 200)
+        if (response.status != 200)
             throw new Error("Error inviting testimonial")
         return { success: true, message: 'Invitaciones enviadas correctamente' }
     } catch (error: any) {
@@ -243,9 +243,9 @@ export async function inviteTestimonialAction(testimonial: InviteTestimonialDto)
 export async function submitTestimonialAction(testimonial: createNewTestimonialDto) {
     try {
         const apiClient = createApiClient();
-        
+
         let mediaType = MediaType.TEXT;
-        if(testimonial.file){
+        if (testimonial.file) {
             mediaType = getFileKind(testimonial.file);
         }
 
@@ -267,15 +267,35 @@ export async function submitTestimonialAction(testimonial: createNewTestimonialD
 
         return { success: true, message: 'Testimonio enviado exitosamente' }
     } catch (error: any) {
-        console.error('Error creating testimonial:', error)
+        console.log("ERROR RAW:", error);
+
+        // Si el cliente ya parseó el body (usualmente está en error.data)
+        if (error.data) {
+            console.log("Error body:", error.data);
+            return {
+                success: false,
+                error: error.data.message || JSON.stringify(error.data)
+            };
+        }
+
+        // Si el cliente te dejó el Response sin parsear:
+        if (error.response instanceof Response) {
+            const body = await error.response.json().catch(() => null);
+            console.log("Parsed body:", body);
+            return {
+                success: false,
+                error: body?.message || 'Error desconocido'
+            };
+        }
+
         return {
             success: false,
-            error: error.message || 'Error al crear el testimonio'
-        }
+            error: error.message || 'Error desconocido'
+        };
     }
 }
 function getFileKind(file: File): MediaType {
-  if (file.type.startsWith("image/")) return MediaType.IMAGE;
-  if (file.type.startsWith("video/")) return MediaType.VIDEO;
-  throw new Error("Incorrect media type")
+    if (file.type.startsWith("image/")) return MediaType.IMAGE;
+    if (file.type.startsWith("video/")) return MediaType.VIDEO;
+    throw new Error("Incorrect media type")
 }
