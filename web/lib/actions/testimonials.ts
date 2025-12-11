@@ -241,55 +241,48 @@ export async function inviteTestimonialAction(testimonial: InviteTestimonialDto)
 }
 
 export async function submitTestimonialAction(testimonial: createNewTestimonialDto) {
-    
-        const apiClient = createApiClient();
 
-        let mediaType = MediaType.TEXT;
-        if (testimonial.file) {
-            mediaType = getFileKind(testimonial.file);
-        }
-        try {
+    const apiClient = createApiClient();
+
+    let mediaType = MediaType.TEXT;
+    if (testimonial.file) {
+        mediaType = getFileKind(testimonial.file);
+    }
+
+    try {
+        let body = {
+            client_name: testimonial.client_name,
+            content: testimonial.content,
+            media_type: mediaType,
+            stars_rating: testimonial.stars_rating,
+            client_email: testimonial.client_email,
+            title: "Amazing service",
+            ...(testimonial.file && { file: testimonial.file }) // ← magia
+        };
+
         await apiClient.request<void, any>({
             path: `/testimonials`,
             method: "POST",
             query: { token: testimonial.token },
-            body: {
-                client_name: testimonial.client_name,
-                content: testimonial.content,
-                media_type: mediaType,
-                stars_rating: testimonial.stars_rating,
-                client_email: testimonial.client_email,
-                title: "Amazing service",
-                file: testimonial.file
-            },
+            body: body,
             type: ContentType.FormData
         })
 
         return { success: true, message: 'Testimonio enviado exitosamente' }
     } catch (error: any) {
-        console.log("ERROR RAW:", error);
-        const body = await error.response.json();
-        if (body) {
-            console.log("Error body:", body);
-            return {
-                success: false,
-                error: body || JSON.stringify(body)
-            };
+        if (error instanceof Response) {
+            const raw = await error.text();   // <-- aquí lo consumes
+            console.log("ERROR RAW BODY:", raw);
+
+            try {
+                console.log("PARSED JSON:", JSON.parse(raw));
+            } catch (_) {
+                // No era JSON
+            }
+            return;
         }
 
-        if (error.response instanceof Response) {
-            const body = await error.response.json().catch(() => null);
-            console.log("Parsed body:", body);
-            return {
-                success: false,
-                error: body?.message || 'Error desconocido'
-            };
-        }
-
-        return {
-            success: false,
-            error: error.message || 'Error desconocido'
-        };
+        console.error("Otro tipo de error:", error);
     }
 }
 function getFileKind(file: File): MediaType {
