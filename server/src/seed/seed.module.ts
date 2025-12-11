@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from "@nestjs/common";
+import { Logger, Module, OnModuleInit } from "@nestjs/common";
 import { InjectRepository, TypeOrmModule } from "@nestjs/typeorm";
 import { Category } from "src/categories/entities/category.entity";
 import { OrganizationRole } from "src/common/types/userRole";
@@ -17,6 +17,7 @@ import { Repository } from "typeorm";
     imports: [TypeOrmModule.forFeature([User, Organization, UserOrganization, Testimonial, Category]), UsersModule],
 })
 export class SeedModule implements OnModuleInit {
+    private logger = new Logger(SeedModule.name);
     constructor(
         private userService: UsersService,
         @InjectRepository(Organization) private orgRepo: Repository<Organization>,
@@ -27,22 +28,30 @@ export class SeedModule implements OnModuleInit {
     async onModuleInit() {
         if (process.env.SEED_DB !== 'true')
             return;
+        this.logger.log("Running seed db")
         await this.run();
     }
 
     private async run() {
         //create categories
+        this.logger.log("Creating categories...")
         await this.createCategories();
         //mocks users
+        this.logger.log("Creating controlled users...")
+
         await this.createMockUser("cms391547","cms391547","cms391547@gmail.com");
         await this.createMockUser("john","john doe","jhon_doe@gmail.com");
 
         //
         
         // Create 5 random users
+        this.logger.log("Creating users without organization...")
         await this.createUserWithoutOrg(10);
+        this.logger.log("Creating users with an organization...")
         await this.createUsersWithOneOrg(10);
-        await this.createUsersWithManyOrgs(10);
+        this.logger.log("Creating users with many organization...")
+        await this.createUsersWithManyOrgs(5);
+        this.logger.log("Seed finished")
     }
 
     private async createMockUser(username:string,name:string,email:string){
