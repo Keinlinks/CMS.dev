@@ -22,17 +22,23 @@ export class CreateTestimonialsUseCase {
     ) { }
 
     async execute(createTestimonialDto: CreateTestimonialDto, token: string, file?: Express.Multer.File) {
+        this.logger.log("Intent for create a testimonial")
         let invitation = await this.testimonialInvitationService.findByToken(token);
-        if (!invitation) throw new BadRequestException("Invalid token");
+        if (!invitation) {
+        this.logger.error("Intent for create a testimonial: invalid token")
+            throw new BadRequestException("Invalid token");
+        }
         this.validateInvitation(invitation);
 
         const org = await this.organizationService.findOneUnsafe(invitation.organizationId);
         if (!org) {
+            this.logger.error(`Intent for create a testimonial: Organization ${invitation.organizationId} does not exist`)
             throw new NotFoundException(`Organization ${invitation.organizationId} does not exist`);
         }
 
         const category = await this.categoryService.findOne(invitation.categoryId);
         if (!category) {
+            this.logger.error(`Intent for create a testimonial: Category ${invitation.categoryId} does not exist`)
             throw new NotFoundException(`Category ${invitation.categoryId} does not exist`);
         }
 
