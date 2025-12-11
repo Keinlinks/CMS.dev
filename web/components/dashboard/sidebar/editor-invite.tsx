@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { inviteUserToOrganizationAction } from "@/lib/actions/organizations"
 
 export function EditorInvite({
     editors,
@@ -74,11 +75,13 @@ export function EditorInvite({
 
         setIsSubmitting(true)
 
-        // TODO: Implementar la lógica de invitación cuando tengamos las funciones del servidor
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await inviteUserToOrganizationAction({
+            email: email,
+            organizationId: currentOrgId,
+            role: 'editor'
+        });
 
         console.log("Invitando editor:", email, "a organización:", currentOrgId)
-        alert('Funcionalidad de invitación pendiente de implementar')
 
         // Reset form and close dialog
         setEmail("")

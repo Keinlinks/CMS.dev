@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createApiClient } from '@/lib/api/client'
 import { ActionResponse } from './auth'
+import { InviteUserToOrganizationDto } from '../api/Api'
 
 export interface CreateOrganizationData {
   name: string
@@ -120,6 +121,54 @@ export async function createOrganizationAction(
     // If unauthorized, redirect to login
     if (error?.error?.statusCode === 401 || error?.status === 401) {
       redirect('/login')
+    }
+
+    return {
+      success: false,
+      error: errorMessage,
+    }
+  }
+}
+
+export async function inviteUserToOrganizationAction(
+  data: InviteUserToOrganizationDto
+): Promise<ActionResponse<Organization>> {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth_token')?.value
+
+    if (!token) {
+      redirect('/login')
+    }
+
+    const apiClient = createApiClient(token)
+
+    const response = await apiClient.organizationManagement.organizationManagementControllerInviteUser(
+      {
+        email:data.email,
+        organizationId: data.organizationId,
+        role: data.role
+      },
+      { format: 'json' }
+    )
+    if(response.status != 200)
+      throw new Error("Error invitando a usuario")
+    console.log('✅ Usuario invitado: ' + data)
+
+    return {
+      success: true,
+    }
+  } catch (error: any) {
+    console.error('Create organization error:', error)
+
+    // Extract error message from response
+    let errorMessage = 'Error de conexión. Por favor intenta nuevamente.'
+    if (error?.error?.message) {
+      errorMessage = error.error.message
+    } else if (error?.error?.error) {
+      errorMessage = error.error.error
+    } else if (typeof error?.error === 'string') {
+      errorMessage = error.error
     }
 
     return {
