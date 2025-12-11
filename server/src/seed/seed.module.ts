@@ -30,27 +30,34 @@ export class SeedModule implements OnModuleInit {
         await this.run();
     }
 
-    async run() {
+    private async run() {
         //create categories
         await this.createCategories();
-        //cms user
-        let user = await this.userService.findByUsernameOrEmail(`cms391547@gmail.com`);
-        if (!user) {
-            user = await this.userService.create({
-                email: `cms391547@gmail.com`,
-                password: "Password123",
-                username: `cms`,
-                name: `Test CMS user`
-            });
-        }
+        //mocks users
+        await this.createMockUser("cms391547","cms391547","cms391547@gmail.com");
+        await this.createMockUser("john","john doe","jhon_doe@gmail.com");
 
+        //
+        
         // Create 5 random users
         await this.createUserWithoutOrg(10);
         await this.createUsersWithOneOrg(10);
         await this.createUsersWithManyOrgs(10);
     }
 
-    async createUserWithoutOrg(count: number) {
+    private async createMockUser(username:string,name:string,email:string){
+        let user = await this.userService.findByUsernameOrEmail(email);
+        if (!user) {
+            user = await this.userService.create({
+                email,
+                password: "Password123",
+                username,
+                name
+            });
+        }
+    }
+
+    private async createUserWithoutOrg(count: number) {
         for (let i = 0; i < count; i++) {
             const email = `test${i + 1}@test.com`;
             const username = `test_username_${i + 1}`;
@@ -61,7 +68,7 @@ export class SeedModule implements OnModuleInit {
             }
         }
     }
-    async createUsersWithOneOrg(count: number) {
+    private async createUsersWithOneOrg(count: number) {
         for (let i = 0; i < count; i++) {
             const email = `userwithorg${i + 1}@test.com`;
             const username = `test_username_userwithorg_${i + 1}`;
@@ -81,7 +88,7 @@ export class SeedModule implements OnModuleInit {
         }
     }
 
-    async createUsersWithManyOrgs(count: number) {
+    private async createUsersWithManyOrgs(count: number) {
         for (let i = 0; i < count; i++) {
             const email = `userwithManyOrg${i + 1}@test.com`;
             const username = `test_username_userwithmanyOrg_${i + 1}`;
@@ -111,7 +118,7 @@ export class SeedModule implements OnModuleInit {
         }
     }
 
-    async createTestimonials(count: number, organization: Organization, categoryId: string) {
+    private async createTestimonials(count: number, organization: Organization, categoryId: string) {
         for (let i = 0; i < count; i++) {
             let userNumber = i + 1;
             let testimonial: Partial<Testimonial> = {
@@ -131,7 +138,7 @@ export class SeedModule implements OnModuleInit {
             if (!exists) await this.testimonialRepo.save({ ...testimonial, status: this.randomStatus() });
         }
     }
-    async createCategories() {
+    private async createCategories() {
         const categoryServiceName = "Service";
         const categoryProductName = "Product"
 

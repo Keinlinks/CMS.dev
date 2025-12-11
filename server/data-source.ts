@@ -6,6 +6,7 @@ export default new DataSource({
   host: process.env.DATABASE_HOST,
   port: parseInt(process.env.DATABASE_PORT || '5432'),
   username: process.env.DATABASE_USER,
+  url: process.env.DATABASE_URL,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   entities: ['src/**/*.entity.ts'], 
